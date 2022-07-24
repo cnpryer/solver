@@ -1,0 +1,3 @@
+# solver
+
+Solve optimization problems.
