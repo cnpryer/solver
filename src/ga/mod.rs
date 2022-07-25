@@ -1,8 +1,6 @@
-/// These ga solvers are designed to solve both constrained and unconstrained problems by encoding solution traits as
+/// `ga` is designed to solve both constrained and unconstrained problems by encoding solution traits as
 /// *genes*, solution states as *individuals*, and solution groups as *populations*. Genetic algorithms improve on populations
 /// iteratively (referred to as *generations*) via reproduction and scoring an individual's *fitness*.
-
-// GeneticAlgorithm is the *solver* implemented in the `ga` module
 const SOLVER_NAME: &str = "GeneticAlgorithm";
 
 // Default data for genetic algorithm configuration
@@ -12,31 +10,16 @@ const DEFAULT_CROSSOVER_RATE: f32 = 0.5;
 const DEFAULT_MUTATION_RATE: f32 = 0.05;
 const DEFAULT_SELECTION_RATE: f32 = 0.5;
 
-/// A `Gene` is the atomic structure of the evolutionary solver used to represent solution traits.
-///
-/// For example, in scheduling problems a gene could represent time, duration, etc..
-pub struct Gene<'a> {
-    name: &'a str,
-    data: Vec<u16>,
-}
-
-impl Gene<'_> {
-    fn new(name: &str, data: Vec<u16>) -> Gene {
-        Gene { name, data }
-    }
-}
-
-/// An `Individual` is a structure that represents a solution's composition. `Individual`s are composed of `Gene`s.
+/// An `Individual` is a structure that represents a solution's composition.
 ///
 /// For example, in scheduling problems an individual could represent a schedule.
-pub struct Individual<'a> {
-    // Ordered (TODO) vector of genes. Each individual in a population must have the same types of genes
-    genes: Vec<Gene<'a>>,
+pub struct Individual {
+    genes: Vec<u16>,
     fitness: Option<i32>,
 }
 
-impl Individual<'_> {
-    fn new(genes: Vec<Gene>) -> Individual {
+impl Individual {
+    fn new(genes: Vec<u16>) -> Individual {
         Individual {
             genes,
             fitness: None,
@@ -45,12 +28,12 @@ impl Individual<'_> {
 }
 
 /// A `Population` is a group of `Individual`s.
-pub struct Population<'a> {
+pub struct Population {
     generation: u32,
-    individuals: Vec<Individual<'a>>,
+    individuals: Vec<Individual>,
 }
 
-impl Population<'_> {
+impl Population {
     fn new(individuals: Vec<Individual>) -> Population {
         Population {
             generation: 0,
@@ -62,13 +45,13 @@ impl Population<'_> {
 /// A `Model` is a structure that defines the problem to be solved.
 pub struct Model<'a> {
     // first generation of individuals
-    population: Population<'a>,
+    population: Population,
     // fitness evaluation function that evaluates an Individual
     fitness: &'a dyn Fn(Individual) -> i32,
 }
 
 impl Model<'_> {
-    fn new<'a>(population: Population<'a>, fitness: &'a dyn Fn(Individual) -> i32) -> Model<'a> {
+    fn new<'a>(population: Population, fitness: &'a dyn Fn(Individual) -> i32) -> Model<'a> {
         Model {
             population,
             fitness,
@@ -150,28 +133,12 @@ mod tests {
     }
 
     #[test]
-    fn test_gene() {
-        let gene = Gene::new("Test", vec![1, 2, 3]);
-        let expected = vec![1, 2, 3];
-
-        assert_eq!(&gene.data, &expected);
-        assert_eq!(gene.name, "Test");
-    }
-
-    #[test]
     fn test_individual() {
-        let individual = Individual::new(vec![
-            Gene::new("Gene0", vec![1, 2, 3]),
-            Gene::new("Gene1", vec![1, 2, 3]),
-        ]);
+        let individual = Individual::new(vec![1, 2, 3]);
 
         // TODO: implement equality
-        let expected = vec![1, 2, 3, 1, 2, 3];
-        let res: Vec<u16> = individual
-            .genes
-            .into_iter()
-            .flat_map(|g| g.data.into_iter())
-            .collect();
+        let expected = vec![1, 2, 3];
+        let res: Vec<u16> = individual.genes.into_iter().collect();
 
         assert_eq!(res, expected);
         assert_eq!(individual.fitness, None);
@@ -180,22 +147,16 @@ mod tests {
     #[test]
     fn test_population() {
         let population = Population::new(vec![
-            Individual::new(vec![
-                Gene::new("Gene0", vec![1, 2, 3]),
-                Gene::new("Gene1", vec![1, 2, 3]),
-            ]),
-            Individual::new(vec![
-                Gene::new("Gene0", vec![1, 2, 3]),
-                Gene::new("Gene1", vec![1, 2, 3]),
-            ]),
+            Individual::new(vec![1, 2, 3]),
+            Individual::new(vec![1, 2, 3]),
         ]);
 
         // TODO: implement equality
-        let expected = vec![1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3];
+        let expected = vec![1, 2, 3, 1, 2, 3];
         let res: Vec<u16> = population
             .individuals
             .into_iter()
-            .flat_map(|i| i.genes.into_iter().flat_map(|g| g.data.into_iter()))
+            .flat_map(|i| i.genes.into_iter())
             .collect();
 
         assert_eq!(res, expected);
@@ -206,33 +167,24 @@ mod tests {
     fn test_model() {
         let model = Model::new(
             Population::new(vec![
-                Individual::new(vec![
-                    Gene::new("Gene0", vec![1, 2, 3]),
-                    Gene::new("Gene1", vec![1, 2, 3]),
-                ]),
-                Individual::new(vec![
-                    Gene::new("Gene0", vec![1, 2, 3]),
-                    Gene::new("Gene1", vec![1, 2, 3]),
-                ]),
+                Individual::new(vec![1, 2, 3]),
+                Individual::new(vec![1, 2, 3]),
             ]),
             &test_fitness_fn,
         );
 
         // TOOD: model validity
-        let exp_pop_genes = vec![1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3];
+        let exp_pop_genes = vec![1, 2, 3, 1, 2, 3];
         let res_pop_genes: Vec<u16> = model
             .population
             .individuals
             .into_iter()
-            .flat_map(|i| i.genes.into_iter().flat_map(|g| g.data.into_iter()))
+            .flat_map(|i| i.genes.into_iter())
             .collect();
 
         assert_eq!(res_pop_genes, exp_pop_genes);
         // TODO: update after fitness fn is implemented
-        assert_eq!(
-            (model.fitness)(Individual::new(vec![Gene::new("Gene0", vec![1, 2, 3])])),
-            0
-        );
+        assert_eq!((model.fitness)(Individual::new(vec![1, 2, 3])), 0);
     }
 
     #[test]
@@ -250,14 +202,8 @@ mod tests {
     fn test_solver() {
         let model = Model::new(
             Population::new(vec![
-                Individual::new(vec![
-                    Gene::new("Gene0", vec![1, 2, 3]),
-                    Gene::new("Gene1", vec![1, 2, 3]),
-                ]),
-                Individual::new(vec![
-                    Gene::new("Gene0", vec![1, 2, 3]),
-                    Gene::new("Gene1", vec![1, 2, 3]),
-                ]),
+                Individual::new(vec![1, 2, 3]),
+                Individual::new(vec![1, 2, 3]),
             ]),
             &test_fitness_fn,
         );
