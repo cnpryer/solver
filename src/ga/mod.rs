@@ -1,6 +1,8 @@
 /// `ga` is designed to solve both constrained and unconstrained problems by encoding solution traits as
 /// *genes*, solution states as *individuals*, and solution groups as *populations*. Genetic algorithms improve on populations
 /// iteratively (referred to as *generations*) via reproduction and scoring an individual's *fitness*.
+use rand::{thread_rng, Rng};
+
 const SOLVER_NAME: &str = "GeneticAlgorithm";
 
 // Default data for genetic algorithm configuration
@@ -13,6 +15,7 @@ const DEFAULT_SELECTION_RATE: f32 = 0.5;
 /// An `Individual` is a structure that represents a solution's composition.
 ///
 /// For example, in scheduling problems an individual could represent a schedule.
+#[derive(Clone)]
 pub struct Individual {
     genes: Vec<u16>,
     fitness: Option<i32>,
@@ -24,6 +27,10 @@ impl Individual {
             genes,
             fitness: None,
         }
+    }
+
+    fn update_fitness_score(&mut self, score: i32) {
+        self.fitness = Some(score);
     }
 }
 
@@ -47,15 +54,64 @@ pub struct Model<'a> {
     // first generation of individuals
     population: Population,
     // fitness evaluation function that evaluates an Individual
-    fitness: &'a dyn Fn(Individual) -> i32,
+    fitness_fn: &'a dyn Fn(&Individual) -> i32,
 }
 
 impl Model<'_> {
-    fn new<'a>(population: Population, fitness: &'a dyn Fn(Individual) -> i32) -> Model<'a> {
+    fn new<'a>(population: Population, fitness_fn: &'a dyn Fn(&Individual) -> i32) -> Model<'a> {
         Model {
             population,
-            fitness,
+            fitness_fn,
         }
+    }
+
+    /// Applies a new fitness score to each individual in the population.
+    fn score_population(&mut self) {
+        for i in 0..self.population.individuals.len() {
+            let score = (self.fitness_fn)(&self.population.individuals[i]);
+            self.population.individuals[i].update_fitness_score(score);
+        }
+    }
+
+    fn sort_population_by_fitness(&mut self) {
+        self.population
+            .individuals
+            .sort_by(|a, b| b.fitness.cmp(&a.fitness));
+    }
+
+    /// Selects a subset of the modeled population based on fitness scores and a `selection_rate`.
+    fn select_for_reproduction(&mut self, selection_rate: f32) -> Vec<Individual> {
+        // Sort the population individuals in descending order based on their fitness scores
+        self.sort_population_by_fitness(); // TODO: Avoid this by retaining pre-sorted pop
+
+        let n = ((self.population.individuals.len() as f32) * selection_rate) as usize;
+        self.population.individuals[..n].to_vec()
+    }
+
+    /// Breed two parents using a `crossover_rate`.
+    fn reproduce(
+        &self,
+        parent_a: Individual,
+        parent_b: Individual,
+        crossover_rate: f32,
+    ) -> Individual {
+        // `crossover_rate` is used to slice n-length of `parent_a` and the remaining length of `parent_b`
+        let n = ((parent_a.genes.len() as f32) * crossover_rate) as usize;
+        let mut new_genes = parent_a.genes[0..n].to_vec();
+        new_genes.extend(&parent_b.genes[n..]);
+
+        Individual {
+            genes: new_genes,
+            fitness: None,
+        }
+    }
+
+    /// Mutates an individual using a `mutation_rate`.
+    fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
+        let mut rng = thread_rng();
+        let new_gene = gene_pool[rng.gen_range(0..gene_pool.len())];
+        let n = individual.genes.len();
+        individual.genes[rng.gen_range(0..n)] = new_gene;
     }
 }
 
@@ -128,8 +184,13 @@ fn run(solver: &Solver) -> () {
 mod tests {
     use super::*;
 
-    fn test_fitness_fn(individual: Individual) -> i32 {
-        0 // TODO
+    fn test_fitness_fn(individual: &Individual) -> i32 {
+        // TODO
+        if individual.fitness.is_none() {
+            return 0;
+        }
+
+        individual.fitness.unwrap()
     }
 
     #[test]
@@ -184,7 +245,65 @@ mod tests {
 
         assert_eq!(res_pop_genes, exp_pop_genes);
         // TODO: update after fitness fn is implemented
-        assert_eq!((model.fitness)(Individual::new(vec![1, 2, 3])), 0);
+        assert_eq!((model.fitness_fn)(&Individual::new(vec![1, 2, 3])), 0);
+    }
+
+    #[test]
+    fn test_score_population() {
+        let mut model = Model::new(
+            Population::new(vec![
+                Individual::new(vec![1, 2, 3]),
+                Individual::new(vec![1, 2, 3]),
+            ]),
+            &test_fitness_fn,
+        );
+
+        // TODO: update after a fitness_fn is implemented
+        model.score_population();
+
+        for individual in model.population.individuals {
+            assert_eq!(individual.fitness, Some(0));
+        }
+    }
+
+    #[test]
+    fn test_selection() {
+        let mut moved_individual = Individual::new(vec![1, 2, 3]);
+        moved_individual.update_fitness_score(-1);
+        let mut model = Model::new(
+            Population::new(vec![moved_individual, Individual::new(vec![4, 5, 6])]),
+            &test_fitness_fn,
+        );
+        model.score_population();
+
+        let selection_rate = 0.5;
+        let results = model.select_for_reproduction(selection_rate);
+
+        assert_eq!(results[0].genes, vec![4, 5, 6]);
+    }
+
+    #[test]
+    fn test_crossover() {
+        let parent_a = Individual::new(vec![0, 0, 0]);
+        let parent_b = Individual::new(vec![1, 1, 1]);
+        let model = Model::new(
+            Population::new(vec![
+                Individual::new(parent_a.genes.clone()),
+                Individual::new(parent_b.genes.clone()),
+            ]),
+            &test_fitness_fn,
+        );
+
+        let crossover_rate = 0.5;
+        let res = model.reproduce(parent_a, parent_b, crossover_rate);
+
+        assert_eq!(res.genes, vec![0, 1, 1]);
+    }
+
+    #[test]
+    fn test_mutation() {
+        // TODO
+        assert!(true);
     }
 
     #[test]
