@@ -36,11 +36,6 @@ impl Individual {
 mod tests {
     use super::*;
 
-    fn mock_fitness_fn(individual: &Individual) -> i32 {
-        // TODO
-        individual.fitness
-    }
-
     #[test]
     fn test_individual() {
         let individual = Individual::new(vec![1, 2, 3]);
