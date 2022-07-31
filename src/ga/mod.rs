@@ -11,11 +11,11 @@ const SOLVER_NAME: &str = "GeneticAlgorithm";
 pub struct Solver<'a> {
     name: &'a str,
     model: model::Model<'a>,
-    config: Option<config::Config>,
+    config: config::Config,
 }
 
 impl Solver<'_> {
-    fn new(model: model::Model<'_>, config: Option<config::Config>) -> Solver {
+    fn new(model: model::Model<'_>, config: config::Config) -> Solver {
         Solver {
             name: SOLVER_NAME,
             model,
@@ -41,13 +41,16 @@ mod tests {
     #[test]
     fn test_solver() {
         let model = model::Model::new(
-            population::Population::new(vec![
-                individual::Individual::new(vec![1, 2, 3]),
-                individual::Individual::new(vec![1, 2, 3]),
-            ]),
+            population::Population::new(
+                0,
+                vec![
+                    individual::Individual::new(vec![1, 2, 3], i32::MIN),
+                    individual::Individual::new(vec![1, 2, 3], i32::MIN),
+                ],
+            ),
             &mock_fitness_fn,
         );
-        let test_solver = Solver::new(model, None);
+        let test_solver = Solver::new(model, config::Config::default());
 
         // TODO
         run(&test_solver);

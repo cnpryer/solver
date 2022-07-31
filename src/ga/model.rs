@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-
 use rand::{thread_rng, Rng};
 
 use crate::ga::individual::Individual;
@@ -7,9 +5,9 @@ use crate::ga::population::Population;
 
 /// A `Model` is a structure that defines the problem to be solved.
 pub struct Model<'a> {
-    // first generation of individuals
+    // A group of individuals
     population: Population,
-    // fitness evaluation function that evaluates an Individual
+    // Function used to evaluate an individual's *fitness*
     fitness_fn: &'a dyn Fn(&Individual) -> i32,
 }
 
@@ -24,8 +22,10 @@ impl Model<'_> {
         }
     }
 
-    /// Applies a new fitness score to each individual in the population.
+    /// Apply a new fitness score to each individual in the population.
     fn score_population(&mut self) {
+        // TODO: It's probably unnecessarily expensive to clone each individual like this
+        //       just to update their fitness scores.
         let mut individuals = self.population.get_individuals().clone();
 
         for i in 0..individuals.len() {
@@ -41,12 +41,12 @@ impl Model<'_> {
         // Sort the population individuals in descending order based on their fitness scores
         self.population.sort_by_fitness(); // TODO: Avoid this by retaining pre-sorted pop.
 
-        // get top-n individuals using `selection_rate`
+        // Get top-n individuals using `selection_rate`
         let n = ((self.population.get_individuals().len() as f32) * selection_rate) as usize;
         self.population.get_individuals()[..n].to_vec()
     }
 
-    /// Breed two parents using a `crossover_rate`.
+    /// Create a new `Individual` by breeding two parents using a `crossover_rate`.
     fn reproduce(
         &self,
         parent_a: Individual,
@@ -58,10 +58,10 @@ impl Model<'_> {
         let mut new_genes = parent_a.get_genes()[0..n].to_vec();
         new_genes.extend(&parent_b.get_genes()[n..]);
 
-        Individual::new(new_genes)
+        Individual::new(new_genes, i32::MIN)
     }
 
-    /// Creates.
+    /// Randomly modifies an `Individual` from a pool of genes.
     fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
         // Pull random gene from the `gene_pool`
         let mut rng = thread_rng();
@@ -87,10 +87,13 @@ mod tests {
     #[test]
     fn test_model() {
         let model = Model::new(
-            Population::new(vec![
-                Individual::new(vec![1, 2, 3]),
-                Individual::new(vec![1, 2, 3]),
-            ]),
+            Population::new(
+                0,
+                vec![
+                    Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], i32::MIN),
+                ],
+            ),
             &mock_fitness_fn,
         );
 
@@ -106,7 +109,7 @@ mod tests {
         assert_eq!(res_pop_genes, exp_pop_genes);
         // TODO: update after fitness fn is implemented
         assert_eq!(
-            (model.fitness_fn)(&Individual::new(vec![1, 2, 3])),
+            (model.fitness_fn)(&Individual::new(vec![1, 2, 3], i32::MIN)),
             i32::MIN
         );
     }
@@ -114,10 +117,13 @@ mod tests {
     #[test]
     fn test_score_population() {
         let mut model = Model::new(
-            Population::new(vec![
-                Individual::new(vec![1, 2, 3]),
-                Individual::new(vec![1, 2, 3]),
-            ]),
+            Population::new(
+                0,
+                vec![
+                    Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], i32::MIN),
+                ],
+            ),
             &mock_fitness_fn,
         );
 
@@ -131,13 +137,9 @@ mod tests {
 
     #[test]
     fn test_selection() {
-        let mut i1 = Individual::new(vec![1, 2, 3]);
-        i1.update_fitness_score(-1);
-
-        let mut i2 = Individual::new(vec![4, 5, 6]);
-        i2.update_fitness_score(1);
-
-        let mut model = Model::new(Population::new(vec![i1, i2]), &mock_fitness_fn);
+        let mut i1 = Individual::new(vec![1, 2, 3], -1);
+        let mut i2 = Individual::new(vec![4, 5, 6], 1);
+        let mut model = Model::new(Population::new(0, vec![i1, i2]), &mock_fitness_fn);
 
         let selection_rate = 0.5;
         let results = model.select_for_reproduction(selection_rate);
@@ -147,13 +149,16 @@ mod tests {
 
     #[test]
     fn test_crossover() {
-        let parent_a = Individual::new(vec![0, 0, 0]);
-        let parent_b = Individual::new(vec![1, 1, 1]);
+        let parent_a = Individual::new(vec![0, 0, 0], i32::MIN);
+        let parent_b = Individual::new(vec![1, 1, 1], i32::MIN);
         let model = Model::new(
-            Population::new(vec![
-                Individual::new(parent_a.get_genes().clone()),
-                Individual::new(parent_b.get_genes().clone()),
-            ]),
+            Population::new(
+                0,
+                vec![
+                    Individual::new(parent_a.get_genes().clone(), i32::MIN),
+                    Individual::new(parent_b.get_genes().clone(), i32::MIN),
+                ],
+            ),
             &mock_fitness_fn,
         );
 

@@ -7,9 +7,9 @@ pub struct Population {
 }
 
 impl Population {
-    pub fn new(individuals: Vec<Individual>) -> Population {
+    pub fn new(generation: u32, individuals: Vec<Individual>) -> Population {
         Population {
-            generation: 0,
+            generation,
             individuals,
         }
     }
@@ -22,6 +22,7 @@ impl Population {
         self.individuals = individuals
     }
 
+    /// Sort individuals by their fitness score in descending order.
     pub fn sort_by_fitness(&mut self) {
         self.individuals
             .sort_by(|a, b| b.get_fitness().cmp(a.get_fitness()));
@@ -34,10 +35,13 @@ mod tests {
 
     #[test]
     fn test_population() {
-        let population = Population::new(vec![
-            Individual::new(vec![1, 2, 3]),
-            Individual::new(vec![1, 2, 3]),
-        ]);
+        let population = Population::new(
+            0,
+            vec![
+                Individual::new(vec![1, 2, 3], i32::MIN),
+                Individual::new(vec![1, 2, 3], i32::MIN),
+            ],
+        );
 
         // TODO: implement equality
         let expected = vec![1, 2, 3, 1, 2, 3];

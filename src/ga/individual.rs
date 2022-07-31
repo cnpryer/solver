@@ -8,11 +8,8 @@ pub struct Individual {
 }
 
 impl Individual {
-    pub fn new(genes: Vec<u16>) -> Individual {
-        Individual {
-            genes,
-            fitness: i32::MIN,
-        }
+    pub fn new(genes: Vec<u16>, fitness: i32) -> Individual {
+        Individual { genes, fitness }
     }
 
     pub fn update_fitness_score(&mut self, score: i32) {
@@ -38,7 +35,7 @@ mod tests {
 
     #[test]
     fn test_individual() {
-        let individual = Individual::new(vec![1, 2, 3]);
+        let individual = Individual::new(vec![1, 2, 3], i32::MIN);
 
         // TODO: implement equality
         let expected = vec![1, 2, 3];
