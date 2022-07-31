@@ -8,15 +8,15 @@ const DEFAULT_SELECTION_RATE: f32 = 0.5;
 // A `Config` used to configure the solve.
 pub struct Config {
     // Minumum number of generations to produce
-    generations: u32,
+    pub generations: u32,
     // Minimum threshold for solve defined as fitness score
-    fitness_threshold: Option<u32>,
+    pub fitness_threshold: Option<u32>,
     // Percent of parent A to crossover with parent B
-    crossover_rate: f32,
+    pub crossover_rate: f32,
     // Rate at which genes are psuedo-logically mutated
-    mutation_rate: f32,
+    pub mutation_rate: f32,
     // Rate at which indivudals are selected for reproduction
-    selection_rate: f32,
+    pub selection_rate: f32,
 }
 
 impl Config {
@@ -54,13 +54,36 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_config() {
-        let cfg = Config::default();
+    fn test_default_config() {
+        let config = Config::default();
 
-        assert_eq!(cfg.crossover_rate, DEFAULT_CROSSOVER_RATE);
-        assert_eq!(cfg.fitness_threshold, Some(DEFAULT_SATISFACTORY_FITNESS));
-        assert_eq!(cfg.generations, DEFAULT_MINIMUM_GENERATIONS);
-        assert_eq!(cfg.mutation_rate, DEFAULT_MUTATION_RATE);
-        assert_eq!(cfg.selection_rate, DEFAULT_SELECTION_RATE);
+        assert_eq!(config.crossover_rate, DEFAULT_CROSSOVER_RATE);
+        assert_eq!(config.fitness_threshold, Some(DEFAULT_SATISFACTORY_FITNESS));
+        assert_eq!(config.generations, DEFAULT_MINIMUM_GENERATIONS);
+        assert_eq!(config.mutation_rate, DEFAULT_MUTATION_RATE);
+        assert_eq!(config.selection_rate, DEFAULT_SELECTION_RATE);
+    }
+
+    #[test]
+    fn test_custom_config() {
+        let generations = 1000;
+        let fitness_threshold = Some(1000);
+        let crossover_rate = 0.5;
+        let mutation_rate = 0.5;
+        let selection_rate = 0.5;
+
+        let config = Config::new(
+            generations,
+            fitness_threshold,
+            crossover_rate,
+            mutation_rate,
+            selection_rate,
+        );
+
+        assert_eq!(config.generations, generations);
+        assert_eq!(config.fitness_threshold, fitness_threshold);
+        assert_eq!(config.crossover_rate, crossover_rate);
+        assert_eq!(config.mutation_rate, mutation_rate);
+        assert_eq!(config.selection_rate, selection_rate);
     }
 }

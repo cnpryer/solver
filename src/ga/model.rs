@@ -12,10 +12,7 @@ pub struct Model<'a> {
 }
 
 impl Model<'_> {
-    pub fn new<'a>(
-        population: Population,
-        fitness_fn: &'a dyn Fn(&Individual) -> i32,
-    ) -> Model<'a> {
+    pub fn new(population: Population, fitness_fn: &'_ dyn Fn(&Individual) -> i32) -> Model {
         Model {
             population,
             fitness_fn,
@@ -23,21 +20,21 @@ impl Model<'_> {
     }
 
     /// Apply a new fitness score to each individual in the population.
-    fn score_population(&mut self) {
+    pub fn score_population(&mut self) {
         // TODO: It's probably unnecessarily expensive to clone each individual like this
         //       just to update their fitness scores.
         let mut individuals = self.population.get_individuals().clone();
 
-        for i in 0..individuals.len() {
-            let score = (self.fitness_fn)(&individuals[i]);
-            individuals[i].update_fitness_score(score);
+        for individual in &mut individuals {
+            let score = (self.fitness_fn)(individual);
+            individual.update_fitness_score(score);
         }
 
         self.population.update_individuals(individuals);
     }
 
     /// Selects a subset of the modeled population based on fitness scores and a `selection_rate`.
-    fn select_for_reproduction(&mut self, selection_rate: f32) -> Vec<Individual> {
+    pub fn select_for_reproduction(&mut self, selection_rate: f32) -> Vec<Individual> {
         // Sort the population individuals in descending order based on their fitness scores
         self.population.sort_by_fitness(); // TODO: Avoid this by retaining pre-sorted pop.
 
@@ -47,7 +44,7 @@ impl Model<'_> {
     }
 
     /// Create a new `Individual` by breeding two parents using a `crossover_rate`.
-    fn reproduce(
+    pub fn reproduce(
         &self,
         parent_a: Individual,
         parent_b: Individual,
@@ -62,7 +59,7 @@ impl Model<'_> {
     }
 
     /// Randomly modifies an `Individual` from a pool of genes.
-    fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
+    pub fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
         // Pull random gene from the `gene_pool`
         let mut rng = thread_rng();
         let i = rng.gen_range(0..gene_pool.len());
@@ -137,8 +134,8 @@ mod tests {
 
     #[test]
     fn test_selection() {
-        let mut i1 = Individual::new(vec![1, 2, 3], -1);
-        let mut i2 = Individual::new(vec![4, 5, 6], 1);
+        let i1 = Individual::new(vec![1, 2, 3], -1);
+        let i2 = Individual::new(vec![4, 5, 6], 1);
         let mut model = Model::new(Population::new(0, vec![i1, i2]), &mock_fitness_fn);
 
         let selection_rate = 0.5;

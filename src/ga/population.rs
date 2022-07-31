@@ -1,6 +1,7 @@
 use crate::ga::individual::Individual;
 
 /// A `Population` is a group of `Individual`s.
+#[derive(Clone)]
 pub struct Population {
     generation: u32,
     individuals: Vec<Individual>,
@@ -16,6 +17,10 @@ impl Population {
 
     pub fn get_individuals(&self) -> &Vec<Individual> {
         &self.individuals
+    }
+
+    pub fn get_generation(&self) -> &u32 {
+        &self.generation
     }
 
     pub fn update_individuals(&mut self, individuals: Vec<Individual>) {

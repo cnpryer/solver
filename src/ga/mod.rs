@@ -1,39 +1,49 @@
+use self::config::Config;
 /// `ga` is designed to solve both constrained and unconstrained problems by encoding solution traits as
 /// *genes*, solution states as *individuals*, and solution groups as *populations*. Genetic algorithms improve on populations
 /// iteratively (referred to as *generations*) via reproduction and scoring an individual's *fitness*.
-mod config;
-mod individual;
-mod model;
-mod population;
+use self::model::Model;
+
+pub mod config;
+pub mod individual;
+pub mod model;
+pub mod population;
 
 const SOLVER_NAME: &str = "GeneticAlgorithm";
 
 pub struct Solver<'a> {
     name: &'a str,
-    model: model::Model<'a>,
-    config: config::Config,
+    model: Model<'a>,
+    config: Config,
 }
 
 impl Solver<'_> {
-    fn new(model: model::Model<'_>, config: config::Config) -> Solver {
+    pub fn new(model: model::Model<'_>, config: Config) -> Solver {
         Solver {
             name: SOLVER_NAME,
             model,
             config,
         }
     }
-}
 
-// TODO
-fn run(solver: &Solver) -> () {
-    ()
+    pub fn get_name(&self) -> &str {
+        self.name
+    }
+
+    pub fn get_model(&self) -> &Model {
+        &self.model
+    }
+
+    pub fn get_config(&self) -> &Config {
+        &self.config
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{individual::Individual, *};
 
-    fn mock_fitness_fn(individual: &individual::Individual) -> i32 {
+    fn mock_fitness_fn(individual: &Individual) -> i32 {
         // TODO
         individual.get_fitness().clone()
     }
@@ -44,16 +54,16 @@ mod tests {
             population::Population::new(
                 0,
                 vec![
-                    individual::Individual::new(vec![1, 2, 3], i32::MIN),
-                    individual::Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], i32::MIN),
                 ],
             ),
             &mock_fitness_fn,
         );
-        let test_solver = Solver::new(model, config::Config::default());
+        let test_solver = Solver::new(model, Config::default());
 
         // TODO
-        run(&test_solver);
+        // run(&test_solver);
 
         assert_eq!(test_solver.name, SOLVER_NAME);
     }

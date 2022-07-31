@@ -1,4 +1,4 @@
-mod ga;
+pub mod ga;
 
 #[cfg(test)]
 mod tests {
