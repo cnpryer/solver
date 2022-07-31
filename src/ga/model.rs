@@ -1,5 +1,6 @@
 use rand::{thread_rng, Rng};
 
+use crate::ga::config::Config;
 use crate::ga::individual::Individual;
 use crate::ga::population::Population;
 
@@ -9,14 +10,25 @@ pub struct Model<'a> {
     population: Population,
     // Function used to evaluate an individual's *fitness*
     fitness_fn: &'a dyn Fn(&Individual) -> i32,
+    // Configuration for the model
+    config: Config,
 }
 
 impl Model<'_> {
-    pub fn new(population: Population, fitness_fn: &'_ dyn Fn(&Individual) -> i32) -> Model {
+    pub fn new(
+        population: Population,
+        fitness_fn: &'_ dyn Fn(&Individual) -> i32,
+        config: Config,
+    ) -> Model {
         Model {
             population,
             fitness_fn,
+            config,
         }
+    }
+
+    fn get_config(&self) -> &Config {
+        &self.config
     }
 
     /// Apply a new fitness score to each individual in the population.
@@ -33,25 +45,24 @@ impl Model<'_> {
         self.population.update_individuals(individuals);
     }
 
-    /// Selects a subset of the modeled population based on fitness scores and a `selection_rate`.
-    pub fn select_for_reproduction(&mut self, selection_rate: f32) -> Vec<Individual> {
+    /// Selects a subset of the modeled population based on fitness scores and the configured selection rate.
+    pub fn select_for_reproduction(&mut self) -> Vec<Individual> {
         // Sort the population individuals in descending order based on their fitness scores
         self.population.sort_by_fitness(); // TODO: Avoid this by retaining pre-sorted pop.
 
+        let config = self.get_config();
+
         // Get top-n individuals using `selection_rate`
-        let n = ((self.population.get_individuals().len() as f32) * selection_rate) as usize;
+        let n = ((self.population.get_individuals().len() as f32) * config.selection_rate) as usize;
         self.population.get_individuals()[..n].to_vec()
     }
 
-    /// Create a new `Individual` by breeding two parents using a `crossover_rate`.
-    pub fn reproduce(
-        &self,
-        parent_a: Individual,
-        parent_b: Individual,
-        crossover_rate: f32,
-    ) -> Individual {
+    /// Create a new `Individual` by breeding two parents using the configured crossover rate.
+    pub fn reproduce(&self, parent_a: Individual, parent_b: Individual) -> Individual {
+        let config = self.get_config();
+
         // `crossover_rate` is used to slice n-length of `parent_a` and the remaining length of `parent_b`
-        let n = ((parent_a.get_genes().len() as f32) * crossover_rate) as usize;
+        let n = ((parent_a.get_genes().len() as f32) * config.crossover_rate) as usize;
         let mut new_genes = parent_a.get_genes()[0..n].to_vec();
         new_genes.extend(&parent_b.get_genes()[n..]);
 
@@ -92,6 +103,7 @@ mod tests {
                 ],
             ),
             &mock_fitness_fn,
+            Config::default(),
         );
 
         // TOOD: model validity
@@ -122,6 +134,7 @@ mod tests {
                 ],
             ),
             &mock_fitness_fn,
+            Config::default(),
         );
 
         // TODO: update after a fitness_fn is implemented
@@ -136,10 +149,14 @@ mod tests {
     fn test_selection() {
         let i1 = Individual::new(vec![1, 2, 3], -1);
         let i2 = Individual::new(vec![4, 5, 6], 1);
-        let mut model = Model::new(Population::new(0, vec![i1, i2]), &mock_fitness_fn);
+        let mut model = Model::new(
+            Population::new(0, vec![i1, i2]),
+            &mock_fitness_fn,
+            Config::default(),
+        );
 
-        let selection_rate = 0.5;
-        let results = model.select_for_reproduction(selection_rate);
+        // NOTE: Uses default selection rate
+        let results = model.select_for_reproduction();
 
         assert_eq!(results[0].get_genes().to_owned(), vec![4, 5, 6]);
     }
@@ -157,10 +174,11 @@ mod tests {
                 ],
             ),
             &mock_fitness_fn,
+            Config::default(),
         );
 
-        let crossover_rate = 0.5;
-        let res = model.reproduce(parent_a, parent_b, crossover_rate);
+        // NOTE: Uses default selection rate
+        let res = model.reproduce(parent_a, parent_b);
 
         assert_eq!(res.get_genes().to_owned(), vec![0, 1, 1]);
     }
