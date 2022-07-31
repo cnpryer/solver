@@ -49,7 +49,7 @@ impl Default for Config {
     }
 }
 
-#[cfg(tests)]
+#[cfg(test)]
 mod tests {
     use super::*;
 
