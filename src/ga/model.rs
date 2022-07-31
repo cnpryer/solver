@@ -79,7 +79,7 @@ impl Model<'_> {
 mod tests {
     use super::*;
 
-    fn test_fitness_fn(individual: &Individual) -> i32 {
+    fn mock_fitness_fn(individual: &Individual) -> i32 {
         // TODO
         individual.get_fitness().clone()
     }
@@ -91,7 +91,7 @@ mod tests {
                 Individual::new(vec![1, 2, 3]),
                 Individual::new(vec![1, 2, 3]),
             ]),
-            &test_fitness_fn,
+            &mock_fitness_fn,
         );
 
         // TOOD: model validity
@@ -118,7 +118,7 @@ mod tests {
                 Individual::new(vec![1, 2, 3]),
                 Individual::new(vec![1, 2, 3]),
             ]),
-            &test_fitness_fn,
+            &mock_fitness_fn,
         );
 
         // TODO: update after a fitness_fn is implemented
@@ -137,7 +137,7 @@ mod tests {
         let mut i2 = Individual::new(vec![4, 5, 6]);
         i2.update_fitness_score(1);
 
-        let mut model = Model::new(Population::new(vec![i1, i2]), &test_fitness_fn);
+        let mut model = Model::new(Population::new(vec![i1, i2]), &mock_fitness_fn);
 
         let selection_rate = 0.5;
         let results = model.select_for_reproduction(selection_rate);
@@ -154,7 +154,7 @@ mod tests {
                 Individual::new(parent_a.get_genes().clone()),
                 Individual::new(parent_b.get_genes().clone()),
             ]),
-            &test_fitness_fn,
+            &mock_fitness_fn,
         );
 
         let crossover_rate = 0.5;

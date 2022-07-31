@@ -36,7 +36,7 @@ impl Individual {
 mod tests {
     use super::*;
 
-    fn test_fitness_fn(individual: &Individual) -> i32 {
+    fn mock_fitness_fn(individual: &Individual) -> i32 {
         // TODO
         individual.fitness
     }

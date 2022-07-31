@@ -33,7 +33,7 @@ fn run(solver: &Solver) -> () {
 mod tests {
     use super::*;
 
-    fn test_fitness_fn(individual: &individual::Individual) -> i32 {
+    fn mock_fitness_fn(individual: &individual::Individual) -> i32 {
         // TODO
         individual.get_fitness().clone()
     }
@@ -45,7 +45,7 @@ mod tests {
                 individual::Individual::new(vec![1, 2, 3]),
                 individual::Individual::new(vec![1, 2, 3]),
             ]),
-            &test_fitness_fn,
+            &mock_fitness_fn,
         );
         let test_solver = Solver::new(model, None);
 
