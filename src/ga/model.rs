@@ -27,12 +27,16 @@ impl Model<'_> {
         }
     }
 
-    fn get_config(&self) -> &Config {
+    pub fn get_config(&self) -> &Config {
         &self.config
     }
 
+    pub fn get_population(&self) -> &Population {
+        &self.population
+    }
+
     /// Apply a new fitness score to each individual in the population.
-    pub fn score_population(&mut self) {
+    fn score_population(&mut self) {
         // TODO: It's probably unnecessarily expensive to clone each individual like this
         //       just to update their fitness scores.
         let mut individuals = self.population.get_individuals().clone();
@@ -45,24 +49,25 @@ impl Model<'_> {
         self.population.update_individuals(individuals);
     }
 
+    /// Normalize fitness scores to values between 0 and 1.
+    fn _normalize_scores(&mut self) {
+        unimplemented!()
+    }
+
     /// Selects a subset of the modeled population based on fitness scores and the configured selection rate.
-    pub fn select_for_reproduction(&mut self) -> Vec<Individual> {
-        // Sort the population individuals in descending order based on their fitness scores
-        self.population.sort_by_fitness(); // TODO: Avoid this by retaining pre-sorted pop.
-
-        let config = self.get_config();
-
+    /// This function assumes the population is pre-sorted by fitness scores
+    /// TODO: Use probability based on fitness scores rather than a sorted truncation-like selection.
+    fn select_for_reproduction(&mut self) -> Vec<Individual> {
         // Get top-n individuals using `selection_rate`
-        let n = ((self.population.get_individuals().len() as f32) * config.selection_rate) as usize;
+        let n = ((self.population.get_individuals().len() as f32) * self.config.selection_rate)
+            as usize;
         self.population.get_individuals()[..n].to_vec()
     }
 
     /// Create a new `Individual` by breeding two parents using the configured crossover rate.
-    pub fn reproduce(&self, parent_a: Individual, parent_b: Individual) -> Individual {
-        let config = self.get_config();
-
+    fn reproduce(&self, parent_a: &Individual, parent_b: &Individual) -> Individual {
         // `crossover_rate` is used to slice n-length of `parent_a` and the remaining length of `parent_b`
-        let n = ((parent_a.get_genes().len() as f32) * config.crossover_rate) as usize;
+        let n = ((parent_a.get_genes().len() as f32) * self.config.crossover_rate) as usize;
         let mut new_genes = parent_a.get_genes()[0..n].to_vec();
         new_genes.extend(&parent_b.get_genes()[n..]);
 
@@ -70,7 +75,8 @@ impl Model<'_> {
     }
 
     /// Randomly modifies an `Individual` from a pool of genes.
-    pub fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
+    /// TODO: Use
+    fn _mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
         // Pull random gene from the `gene_pool`
         let mut rng = thread_rng();
         let i = rng.gen_range(0..gene_pool.len());
@@ -80,6 +86,57 @@ impl Model<'_> {
         let n = individual.get_genes().len();
         let i = rng.gen_range(0..n);
         individual.update_gene(i, new_gene);
+    }
+
+    /// TODO: Need to update the implementation for corrections (See notes).
+    /// Run the model.
+    /// The first population is assumed to be initialized randomly as the 0th generation. The configured
+    /// selection rate determines the subset of the population (fitess-dependent) that is selected to
+    /// reproduce. Fitness scores are normalized with each generation. Each individual's fitness score
+    /// is used to determine the probability of their selection for reproduction. During reproduction
+    /// the configured crossover rate is used to determine how much of Parent A's genes are passed to
+    /// the offspring and the remaining genes are carried over from Parent B. With each new generation
+    /// the configured mutation rate determines the subset of the new population which each individual's
+    /// genes are then randomly mutated. The model stops generating new populations based on the configured
+    /// exit parameters.
+    pub fn run(&mut self) {
+        let initial_generation_num = self.population.get_generation();
+        let population_size = self.population.get_individuals().len();
+
+        // Build populations from initial generation
+        for generation in (*initial_generation_num + 1)..self.config.max_generations {
+            // Sort the initial population by their fitness scores
+            // TODO: Don't do this when using probability
+            self.score_population();
+            self.population.sort_by_fitness();
+
+            let parents = self.select_for_reproduction();
+
+            // One child is produced for each pair of parents
+            let mut offspring = Vec::with_capacity(parents.len() / 2);
+
+            for i in (0..parents.len()).step_by(2) {
+                let parent_a = &parents[i];
+                let parent_b = &parents[i + 1];
+
+                let child = self.reproduce(parent_a, parent_b);
+                offspring.push(child);
+            }
+
+            // Each population must be the same size as the initial generation
+            // Therefore a survival subset needs to be retained in addition to the offspring
+            // TODO: Use probability
+            let survivors =
+                self.population.get_individuals()[0..(population_size - offspring.len())].to_vec();
+
+            offspring.extend(survivors);
+
+            // TODO: Mutation
+
+            self.population = Population::new(generation, offspring);
+        }
+
+        todo!();
     }
 }
 
@@ -156,6 +213,8 @@ mod tests {
         );
 
         // NOTE: Uses default selection rate
+        model.score_population();
+        model.population.sort_by_fitness();
         let results = model.select_for_reproduction();
 
         assert_eq!(results[0].get_genes().to_owned(), vec![4, 5, 6]);
@@ -178,7 +237,7 @@ mod tests {
         );
 
         // NOTE: Uses default selection rate
-        let res = model.reproduce(parent_a, parent_b);
+        let res = model.reproduce(&parent_a, &parent_b);
 
         assert_eq!(res.get_genes().to_owned(), vec![0, 1, 1]);
     }
