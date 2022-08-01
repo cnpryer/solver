@@ -15,6 +15,10 @@ impl Population {
         }
     }
 
+    pub fn set_generation(&mut self, generation: u32) {
+        self.generation = generation;
+    }
+
     pub fn get_individuals(&self) -> &Vec<Individual> {
         &self.individuals
     }
@@ -28,7 +32,7 @@ impl Population {
     }
 
     /// Sort individuals by their fitness score in descending order.
-    pub fn sort_by_fitness(&mut self) {
+    pub(crate) fn sort_by_fitness(&mut self) {
         self.individuals
             .sort_by(|a, b| b.get_fitness().cmp(a.get_fitness()));
     }
