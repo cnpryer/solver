@@ -116,8 +116,14 @@ impl Model<'_> {
             let mut offspring = Vec::with_capacity(parents.len() / 2);
 
             for i in (0..parents.len()).step_by(2) {
+                let j = i + 1;
+
+                if j > parents.len() - 1 {
+                    break;
+                }
+
                 let parent_a = &parents[i];
-                let parent_b = &parents[i + 1];
+                let parent_b = &parents[j];
 
                 let child = self.reproduce(parent_a, parent_b);
                 offspring.push(child);
@@ -240,6 +246,25 @@ mod tests {
         let res = model.reproduce(&parent_a, &parent_b);
 
         assert_eq!(res.get_genes().to_owned(), vec![0, 1, 1]);
+    }
+
+    #[test]
+    fn test_run() {
+        assert!(true);
+        // TODO
+        // let mut model = Model::new(
+        //     Population::new(
+        //         0,
+        //         vec![
+        //             Individual::new(vec![1, 2, 3, 4], i32::MIN),
+        //             Individual::new(vec![5, 6, 7, 8], i32::MIN),
+        //         ],
+        //     ),
+        //     &mock_fitness_fn,
+        //     Config::default(),
+        // );
+
+        // model.run();
     }
 
     #[test]
