@@ -6,6 +6,7 @@ const DEFAULT_MUTATION_RATE: f32 = 0.05;
 const DEFAULT_SELECTION_RATE: f32 = 0.5;
 
 // A `Config` used to configure the solve.
+#[derive(Clone, Copy)]
 pub struct Config {
     // Maximum number of generations to produce
     pub max_generations: u32,

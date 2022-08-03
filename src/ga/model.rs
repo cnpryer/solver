@@ -141,8 +141,6 @@ impl Model<'_> {
 
             self.population = Population::new(generation, offspring);
         }
-
-        todo!();
     }
 }
 
@@ -250,21 +248,26 @@ mod tests {
 
     #[test]
     fn test_run() {
-        assert!(true);
-        // TODO
-        // let mut model = Model::new(
-        //     Population::new(
-        //         0,
-        //         vec![
-        //             Individual::new(vec![1, 2, 3, 4], i32::MIN),
-        //             Individual::new(vec![5, 6, 7, 8], i32::MIN),
-        //         ],
-        //     ),
-        //     &mock_fitness_fn,
-        //     Config::default(),
-        // );
+        // TODO: Update after finalizing each implementation
+        let config = Config::default();
+        let initial_generation = 0;
+        let initial_individuals = vec![
+            Individual::new(vec![1, 2, 3, 4], i32::MIN),
+            Individual::new(vec![5, 6, 7, 8], i32::MIN),
+        ];
+        let initial_population = Population::new(initial_generation, initial_individuals);
+        let mut model = Model::new(initial_population, &mock_fitness_fn, config);
 
-        // model.run();
+        model.run();
+
+        // NOTE: This check will not be valid after when other stopping configuration is utilized.
+        // Generations start from 0
+        assert_eq!(
+            model.population.get_generation().clone() - initial_generation + 1,
+            config.max_generations
+        );
+
+        // TODO: More tests
     }
 
     #[test]
