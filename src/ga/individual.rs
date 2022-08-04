@@ -3,7 +3,9 @@
 /// For example, in scheduling problems an individual could represent a schedule.
 #[derive(Clone)]
 pub struct Individual {
+    /// The genes of an individual represented as positive integers.
     genes: Vec<u16>,
+    /// The fitness (score) of an individual.
     fitness: i32,
 }
 
@@ -24,6 +26,7 @@ impl Individual {
         &self.fitness
     }
 
+    /// Update a gene at a specific position.
     pub fn update_gene(&mut self, pos: usize, gene: u16) {
         self.genes[pos] = gene;
     }

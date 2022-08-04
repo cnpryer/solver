@@ -5,18 +5,18 @@ const DEFAULT_CROSSOVER_RATE: f32 = 0.5;
 const DEFAULT_MUTATION_RATE: f32 = 0.05;
 const DEFAULT_SELECTION_RATE: f32 = 0.5;
 
-// A `Config` used to configure the solve.
+/// A `Config` used to configure the solve.
 #[derive(Clone, Copy)]
 pub struct Config {
-    // Maximum number of generations to produce
+    /// Maximum number of generations to produce
     pub max_generations: u32,
-    // Minimum threshold for solve defined as fitness score
+    /// Minimum threshold for solve defined as fitness score
     pub fitness_threshold: Option<u32>,
-    // Percent of parent A to crossover with parent B
+    /// Percent of parent A to crossover with parent B
     pub crossover_rate: f32,
-    // Rate at which genes are psuedo-logically mutated
+    /// Rate at which genes are psuedo-logically mutated
     pub mutation_rate: f32,
-    // Rate at which indivudals are selected for reproduction
+    /// Rate at which indivudals are selected for reproduction
     pub selection_rate: f32,
 }
 
