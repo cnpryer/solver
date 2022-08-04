@@ -7,6 +7,8 @@ pub struct Population {
     generation: u32,
     /// The individuals of the population.
     individuals: Vec<Individual>,
+    /// Normalized fitness scores for every individual in the population (contains values 0 to 1).
+    normalized_scores: Option<Vec<f32>>,
 }
 
 impl Population {
@@ -14,6 +16,7 @@ impl Population {
         Population {
             generation,
             individuals,
+            normalized_scores: None,
         }
     }
 
@@ -27,6 +30,23 @@ impl Population {
 
     pub fn get_generation(&self) -> &u32 {
         &self.generation
+    }
+
+    pub fn get_normalized_scores(&self) -> &Option<Vec<f32>> {
+        &self.normalized_scores
+    }
+
+    /// Normalize fitness scores to values between 0 and 1.
+    pub(crate) fn normalize_fitness_scores(&mut self) {
+        let mut scores: Vec<f32> = self
+            .individuals
+            .iter()
+            .map(|i| i.get_fitness().clone() as f32)
+            .collect();
+        let total: f32 = scores.iter().map(|s| *s as f32).sum();
+        scores = scores.into_iter().map(|s| s / total).collect();
+
+        self.normalized_scores = Some(scores)
     }
 
     pub fn update_individuals(&mut self, individuals: Vec<Individual>) {
@@ -64,5 +84,21 @@ mod tests {
 
         assert_eq!(res, expected);
         assert_eq!(population.generation, 0);
+    }
+
+    #[test]
+    fn test_normalize_fitness_scores() {
+        let mut population = Population::new(
+            0,
+            vec![
+                Individual::new(vec![1, 2, 3], 2),
+                Individual::new(vec![1, 2, 3], 2),
+            ],
+        );
+
+        population.normalize_fitness_scores();
+
+        let expected = Some(vec![0.5, 0.5]);
+        assert_eq!(population.normalized_scores, expected);
     }
 }

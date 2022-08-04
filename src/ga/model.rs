@@ -47,11 +47,7 @@ impl Model<'_> {
         }
 
         self.population.update_individuals(individuals);
-    }
-
-    /// Normalize fitness scores to values between 0 and 1.
-    fn _normalize_scores(&mut self) {
-        unimplemented!()
+        self.population.normalize_fitness_scores();
     }
 
     /// Selects a subset of the modeled population based on fitness scores and the configured selection rate.
