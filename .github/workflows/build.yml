@@ -34,7 +34,9 @@ jobs:
           cargo fmt --all -- --check
       - name: Run lints
         run: |
-          cargo clippy --all-features
+          export RUSTFLAGS="-C debuginfo=0"
+            cargo clippy --all-features
+            cargo clippy -- -D warnings
       - name: Run tests
         run: |
           cargo test --all-features
