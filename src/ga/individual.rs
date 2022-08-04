@@ -4,13 +4,13 @@
 #[derive(Clone)]
 pub struct Individual {
     /// The genes of an individual represented as positive integers.
-    genes: Vec<u16>,
+    genes: Vec<u32>,
     /// The fitness (score) of an individual.
     fitness: i32,
 }
 
 impl Individual {
-    pub fn new(genes: Vec<u16>, fitness: i32) -> Individual {
+    pub fn new(genes: Vec<u32>, fitness: i32) -> Individual {
         Individual { genes, fitness }
     }
 
@@ -18,7 +18,7 @@ impl Individual {
         self.fitness = score;
     }
 
-    pub fn get_genes(&self) -> &Vec<u16> {
+    pub fn get_genes(&self) -> &Vec<u32> {
         &self.genes
     }
 
@@ -27,7 +27,7 @@ impl Individual {
     }
 
     /// Update a gene at a specific position.
-    pub fn update_gene(&mut self, pos: usize, gene: u16) {
+    pub fn update_gene(&mut self, pos: usize, gene: u32) {
         self.genes[pos] = gene;
     }
 }
@@ -42,7 +42,7 @@ mod tests {
 
         // TODO: implement equality
         let expected = vec![1, 2, 3];
-        let res: Vec<u16> = individual.genes.into_iter().collect();
+        let res: Vec<u32> = individual.genes.into_iter().collect();
 
         assert_eq!(res, expected);
         assert_eq!(individual.fitness, i32::MIN);
