@@ -41,7 +41,7 @@ impl Population {
         let mut scores: Vec<f32> = self
             .individuals
             .iter()
-            .map(|i| i.get_fitness().clone() as f32)
+            .map(|i| *i.get_fitness() as f32)
             .collect();
         let total: f32 = scores.iter().map(|s| *s as f32).sum();
         scores = scores.into_iter().map(|s| s / total).collect();
@@ -76,7 +76,7 @@ mod tests {
 
         // TODO: implement equality
         let expected = vec![1, 2, 3, 1, 2, 3];
-        let res: Vec<u16> = population
+        let res: Vec<u32> = population
             .individuals
             .into_iter()
             .flat_map(|i| i.get_genes().clone().into_iter())

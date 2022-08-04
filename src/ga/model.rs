@@ -72,7 +72,7 @@ impl Model<'_> {
 
     /// Randomly modifies an `Individual` from a pool of genes.
     /// TODO: Use
-    fn _mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u16>) {
+    fn _mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u32>) {
         // Pull random gene from the `gene_pool`
         let mut rng = thread_rng();
         let i = rng.gen_range(0..gene_pool.len());
@@ -165,7 +165,7 @@ mod tests {
 
         // TOOD: model validity
         let exp_pop_genes = vec![1, 2, 3, 1, 2, 3];
-        let res_pop_genes: Vec<u16> = model
+        let res_pop_genes: Vec<u32> = model
             .population
             .get_individuals()
             .into_iter()
