@@ -6,11 +6,11 @@ use crate::ga::population::Population;
 
 /// A `Model` is a structure that defines the problem to be solved.
 pub struct Model<'a> {
-    // A group of individuals
+    /// A group of individuals
     population: Population,
-    // Function used to evaluate an individual's *fitness*
+    /// Function used to evaluate an individual's *fitness*
     fitness_fn: &'a dyn Fn(&Individual) -> i32,
-    // Configuration for the model
+    /// Configuration for the model
     config: Config,
 }
 

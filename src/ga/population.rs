@@ -3,7 +3,9 @@ use crate::ga::individual::Individual;
 /// A `Population` is a group of `Individual`s.
 #[derive(Clone)]
 pub struct Population {
+    /// Generation number of the population.
     generation: u32,
+    /// The individuals of the population.
     individuals: Vec<Individual>,
 }
 
