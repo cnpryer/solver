@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::ga::individual::Individual;
 
 /// A `Population` is a group of `Individual`s.
@@ -57,6 +59,19 @@ impl Population {
     pub(crate) fn sort_by_fitness(&mut self) {
         self.individuals
             .sort_by(|a, b| b.get_fitness().cmp(a.get_fitness()));
+    }
+
+    /// Get unique genes from the population.
+    pub(crate) fn get_gene_pool(&self) -> HashSet<u32> {
+        let mut genes = HashSet::new();
+
+        for indiviudal in self.get_individuals() {
+            for gene in indiviudal.get_genes() {
+                let _ = genes.insert(*gene);
+            }
+        }
+
+        genes
     }
 }
 
