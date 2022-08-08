@@ -72,7 +72,7 @@ impl Model<'_> {
 
     /// Randomly modifies an `Individual` from a pool of genes.
     /// TODO: Use
-    fn _mutate_individual(&mut self, individual: &mut Individual, gene_pool: Vec<u32>) {
+    fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: &Vec<u32>) {
         // Pull random gene from the `gene_pool`
         let mut rng = thread_rng();
         let i = rng.gen_range(0..gene_pool.len());
@@ -132,8 +132,16 @@ impl Model<'_> {
                 self.population.get_individuals()[0..(population_size - offspring.len())].to_vec();
 
             offspring.extend(survivors);
+            let gene_pool: Vec<u32> = self.population.get_gene_pool().into_iter().collect();
 
-            // TODO: Mutation
+            // TODO: Optimize
+            for offspring in &mut offspring {
+                let r = thread_rng().gen_range(0..100);
+
+                if (r as f32 / 100.0) <= self.config.mutation_rate {
+                    self.mutate_individual(offspring, &gene_pool)
+                }
+            }
 
             self.population = Population::new(generation, offspring);
         }
