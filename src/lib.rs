@@ -12,7 +12,7 @@ mod tests {
         solver::Solver,
     };
 
-    fn mock_fitness_fn(individual: &Individual) -> i32 {
+    fn mock_fitness_fn(individual: &Individual) -> u32 {
         // TODO
         individual.get_fitness().clone()
     }
@@ -20,7 +20,7 @@ mod tests {
     #[test]
     fn solve_schedule() {
         let model = Model::new(
-            Population::new(0, vec![Individual::new(vec![1, 2, 3], i32::MIN)]),
+            Population::new(0, vec![Individual::new(vec![1, 2, 3], u32::MIN)]),
             &mock_fitness_fn,
             Config::default(),
         );

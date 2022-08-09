@@ -9,7 +9,7 @@ pub struct Model<'a> {
     /// A group of individuals
     population: Population,
     /// Function used to evaluate an individual's *fitness*
-    fitness_fn: &'a dyn Fn(&Individual) -> i32,
+    fitness_fn: &'a dyn Fn(&Individual) -> u32,
     /// Configuration for the model
     config: Config,
 }
@@ -17,7 +17,7 @@ pub struct Model<'a> {
 impl Model<'_> {
     pub fn new(
         population: Population,
-        fitness_fn: &'_ dyn Fn(&Individual) -> i32,
+        fitness_fn: &'_ dyn Fn(&Individual) -> u32,
         config: Config,
     ) -> Model {
         Model {
@@ -67,7 +67,7 @@ impl Model<'_> {
         let mut new_genes = parent_a.get_genes()[0..n].to_vec();
         new_genes.extend(&parent_b.get_genes()[n..]);
 
-        Individual::new(new_genes, i32::MIN)
+        Individual::new(new_genes, u32::MIN)
     }
 
     /// Randomly modifies an `Individual` from a pool of genes.
@@ -159,21 +159,18 @@ mod tests {
     // used here is, to an extent, arbitrary.
     // Gene pool: 0, 1, 2, 3 (any genes not in pool default to no value).
     // Fittest individuals maximize gene values in fitness data used.
-    fn mock_fitness_fn(individual: &Individual) -> i32 {
+    fn mock_fitness_fn(individual: &Individual) -> u32 {
         let mut data = HashMap::new();
         data.insert(0, 100);
         data.insert(1, 200);
         data.insert(2, 300);
         data.insert(3, 400);
 
-        let total = 1000;
-        let gene_total: i32 = individual
+        individual
             .get_genes()
             .iter()
             .map(|g| data.get(g).unwrap_or(&0))
-            .sum();
-
-        gene_total - total
+            .sum()
     }
 
     #[test]
@@ -182,8 +179,8 @@ mod tests {
             Population::new(
                 0,
                 vec![
-                    Individual::new(vec![1, 2, 3], i32::MIN),
-                    Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], u32::MIN),
+                    Individual::new(vec![1, 2, 3], u32::MIN),
                 ],
             ),
             &mock_fitness_fn,
@@ -202,8 +199,8 @@ mod tests {
         assert_eq!(res_pop_genes, exp_pop_genes);
         // TODO: update after fitness fn is implemented
         assert_eq!(
-            (model.fitness_fn)(&Individual::new(vec![1, 2, 3], i32::MIN)),
-            mock_fitness_fn(&Individual::new(vec![1, 2, 3], i32::MIN))
+            (model.fitness_fn)(&Individual::new(vec![1, 2, 3], u32::MIN)),
+            mock_fitness_fn(&Individual::new(vec![1, 2, 3], u32::MIN))
         );
     }
 
@@ -213,8 +210,8 @@ mod tests {
             Population::new(
                 0,
                 vec![
-                    Individual::new(vec![1, 2, 3], i32::MIN),
-                    Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], u32::MIN),
+                    Individual::new(vec![1, 2, 3], u32::MIN),
                 ],
             ),
             &mock_fitness_fn,
@@ -234,8 +231,8 @@ mod tests {
 
     #[test]
     fn test_selection() {
-        let i1 = Individual::new(vec![1, 2, 3], -1);
-        let i2 = Individual::new(vec![4, 5, 6], 1);
+        let i1 = Individual::new(vec![1, 2, 3], 1);
+        let i2 = Individual::new(vec![4, 5, 6], 2);
         let mut model = Model::new(
             Population::new(0, vec![i1, i2]),
             &mock_fitness_fn,
@@ -251,14 +248,14 @@ mod tests {
 
     #[test]
     fn test_crossover() {
-        let parent_a = Individual::new(vec![0, 0, 0], i32::MIN);
-        let parent_b = Individual::new(vec![1, 1, 1], i32::MIN);
+        let parent_a = Individual::new(vec![0, 0, 0], u32::MIN);
+        let parent_b = Individual::new(vec![1, 1, 1], u32::MIN);
         let model = Model::new(
             Population::new(
                 0,
                 vec![
-                    Individual::new(parent_a.get_genes().clone(), i32::MIN),
-                    Individual::new(parent_b.get_genes().clone(), i32::MIN),
+                    Individual::new(parent_a.get_genes().clone(), u32::MIN),
+                    Individual::new(parent_b.get_genes().clone(), u32::MIN),
                 ],
             ),
             &mock_fitness_fn,
@@ -277,8 +274,8 @@ mod tests {
         let config = Config::default();
         let initial_generation = 0;
         let initial_individuals = vec![
-            Individual::new(vec![1, 2, 3, 4], i32::MIN),
-            Individual::new(vec![5, 6, 7, 8], i32::MIN),
+            Individual::new(vec![1, 2, 3, 4], u32::MIN),
+            Individual::new(vec![5, 6, 7, 8], u32::MIN),
         ];
         let initial_population = Population::new(initial_generation, initial_individuals);
         let mut model = Model::new(initial_population, &mock_fitness_fn, config);
