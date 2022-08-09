@@ -150,11 +150,30 @@ impl Model<'_> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::*;
 
+    // This mock fitness function assigns evaluation data to genes of individuals.
+    // The fitness function implemented here is for testing purposes only. The data
+    // used here is, to an extent, arbitrary.
+    // Gene pool: 0, 1, 2, 3 (any genes not in pool default to no value).
+    // Fittest individuals maximize gene values in fitness data used.
     fn mock_fitness_fn(individual: &Individual) -> i32 {
-        // TODO
-        individual.get_fitness().clone()
+        let mut data = HashMap::new();
+        data.insert(0, 100);
+        data.insert(1, 200);
+        data.insert(2, 300);
+        data.insert(3, 400);
+
+        let total = 1000;
+        let gene_total: i32 = individual
+            .get_genes()
+            .iter()
+            .map(|g| data.get(g).unwrap_or(&0))
+            .sum();
+
+        gene_total - total
     }
 
     #[test]
@@ -184,7 +203,7 @@ mod tests {
         // TODO: update after fitness fn is implemented
         assert_eq!(
             (model.fitness_fn)(&Individual::new(vec![1, 2, 3], i32::MIN)),
-            i32::MIN
+            mock_fitness_fn(&Individual::new(vec![1, 2, 3], i32::MIN))
         );
     }
 
@@ -206,7 +225,10 @@ mod tests {
         model.score_population();
 
         for individual in model.population.get_individuals() {
-            assert_eq!(individual.get_fitness().to_owned(), i32::MIN);
+            assert_eq!(
+                individual.get_fitness().to_owned(),
+                mock_fitness_fn(individual)
+            );
         }
     }
 
@@ -221,7 +243,6 @@ mod tests {
         );
 
         // NOTE: Uses default selection rate
-        model.score_population();
         model.population.sort_by_fitness();
         let results = model.select_for_reproduction();
 
