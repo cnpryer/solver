@@ -33,7 +33,7 @@ mod tests {
         crate::ga::{config::Config, individual::Individual, *},
     };
 
-    fn mock_fitness_fn(individual: &Individual) -> i32 {
+    fn mock_fitness_fn(individual: &Individual) -> u32 {
         // TODO
         individual.get_fitness().clone()
     }
@@ -44,8 +44,8 @@ mod tests {
             population::Population::new(
                 0,
                 vec![
-                    Individual::new(vec![1, 2, 3], i32::MIN),
-                    Individual::new(vec![1, 2, 3], i32::MIN),
+                    Individual::new(vec![1, 2, 3], u32::MIN),
+                    Individual::new(vec![1, 2, 3], u32::MIN),
                 ],
             ),
             &mock_fitness_fn,

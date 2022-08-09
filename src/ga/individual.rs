@@ -6,15 +6,15 @@ pub struct Individual {
     /// The genes of an individual represented as positive integers.
     genes: Vec<u32>,
     /// The fitness (score) of an individual.
-    fitness: i32,
+    fitness: u32,
 }
 
 impl Individual {
-    pub fn new(genes: Vec<u32>, fitness: i32) -> Individual {
+    pub fn new(genes: Vec<u32>, fitness: u32) -> Individual {
         Individual { genes, fitness }
     }
 
-    pub fn update_fitness_score(&mut self, score: i32) {
+    pub fn update_fitness_score(&mut self, score: u32) {
         self.fitness = score;
     }
 
@@ -22,7 +22,7 @@ impl Individual {
         &self.genes
     }
 
-    pub fn get_fitness(&self) -> &i32 {
+    pub fn get_fitness(&self) -> &u32 {
         &self.fitness
     }
 
@@ -38,13 +38,13 @@ mod tests {
 
     #[test]
     fn test_individual() {
-        let individual = Individual::new(vec![1, 2, 3], i32::MIN);
+        let individual = Individual::new(vec![1, 2, 3], u32::MIN);
 
         // TODO: implement equality
         let expected = vec![1, 2, 3];
         let res: Vec<u32> = individual.genes.into_iter().collect();
 
         assert_eq!(res, expected);
-        assert_eq!(individual.fitness, i32::MIN);
+        assert_eq!(individual.fitness, u32::MIN);
     }
 }

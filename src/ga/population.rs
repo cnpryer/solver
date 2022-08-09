@@ -84,8 +84,8 @@ mod tests {
         let population = Population::new(
             0,
             vec![
-                Individual::new(vec![1, 2, 3], i32::MIN),
-                Individual::new(vec![1, 2, 3], i32::MIN),
+                Individual::new(vec![1, 2, 3], u32::MIN),
+                Individual::new(vec![1, 2, 3], u32::MIN),
             ],
         );
 
