@@ -192,7 +192,7 @@ mod tests {
         let res_pop_genes: Vec<u32> = model
             .population
             .get_individuals()
-            .into_iter()
+            .iter()
             .flat_map(|i| i.get_genes().clone().into_iter())
             .collect();
 
@@ -285,7 +285,7 @@ mod tests {
         // NOTE: This check will not be valid after when other stopping configuration is utilized.
         // Generations start from 0
         assert_eq!(
-            model.population.get_generation().clone() - initial_generation + 1,
+            *model.population.get_generation() - initial_generation + 1,
             config.max_generations
         );
 
