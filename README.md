@@ -5,3 +5,9 @@
 # solver
 
 Solve optimization problems.
+
+# Goals
+
+- Basic solver
+- Solver http runner
+- WASM PoC
