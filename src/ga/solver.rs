@@ -35,7 +35,7 @@ mod tests {
 
     fn mock_fitness_fn(individual: &Individual) -> u32 {
         // TODO
-        individual.get_fitness().clone()
+        *individual.get_fitness()
     }
 
     #[test]

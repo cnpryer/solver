@@ -45,7 +45,7 @@ impl Population {
             .iter()
             .map(|i| *i.get_fitness() as f32)
             .collect();
-        let total: f32 = scores.iter().map(|s| *s as f32).sum();
+        let total: f32 = scores.iter().copied().sum();
         scores = scores.into_iter().map(|s| s / total).collect();
 
         self.normalized_scores = Some(scores)
