@@ -1,0 +1,20 @@
+[package]
+
+name = "solver"
+version = "0.0.3-alpha.2"
+edition = "2021"
+authors = ["cnpryer <cnpryer@gmail.com>"]
+license = "MIT"
+description = "Solve optimization problems."
+repository = "https://github.com/cnpryer/solver.git"
+homepage = "https://github.com/cnpryer/solver.git"
+readme = "README.md"
+keywords = [
+    "solver"
+]
+categories = [
+    "science", 
+    "mathematics",
+]
+
+[dependencies]
