@@ -38,6 +38,16 @@ impl<T: Copy + Default> Graph<T> {
     fn edges(&self) -> &Edges<T> {
         &self.edges
     }
+
+    fn neighbors(&self, index: usize) -> Vec<&T> {
+        // TODO: Implement Iterator<Item = Edge<T>>
+        self.edges
+            .0
+            .iter()
+            .filter(|e| e.from.0 == index)
+            .filter_map(|e| self.nodes.get(e.to.0))
+            .collect()
+    }
 }
 
 impl<T: Copy + Default> Default for Graph<T> {
@@ -122,11 +132,24 @@ mod tests {
 
     #[test]
     fn test_graph() {
-        // The following constructs A -> B -> C; A -> C; C -> A
-        let nodes = vec![0, 1, 2, 3];
-        let edges: Vec<(usize, usize)> = vec![(0, 1), (1, 2), (0, 2), (2, 0)];
+        let (nodes, edges) = (sample_nodes(), sample_edges());
         let graph = graph![nodes.clone(), edges.clone()];
         assert_eq!(nodes.last(), graph.nodes().last());
         assert_eq!(edges.last(), graph.edges.last().map(|e| e.tuple()).as_ref());
+    }
+
+    #[test]
+    fn test_graph_neighbors() {
+        let (nodes, edges) = (sample_nodes(), sample_edges());
+        let graph = graph![nodes.clone(), edges.clone()];
+        assert_eq!(vec![&1, &2], graph.neighbors(0));
+    }
+
+    fn sample_nodes() -> Vec<i32> {
+        vec![0, 1, 2, 3]
+    }
+
+    fn sample_edges() -> Vec<(usize, usize)> {
+        vec![(0, 1), (1, 2), (0, 2), (2, 0)]
     }
 }
