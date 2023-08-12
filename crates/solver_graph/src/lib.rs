@@ -23,24 +23,6 @@ struct Graph<T> {
     edges: Edges<T>,
 }
 
-impl From<Vec<(usize, usize)>> for Graph<usize> {
-    fn from(value: Vec<(usize, usize)>) -> Self {
-        Self {
-            nodes: Nodes(vec![]),
-            edges: Edges(
-                value
-                    .into_iter()
-                    .map(|(from, to)| Edge {
-                        from: Index(from),
-                        to: Index(to),
-                        weights: Weights(Vec::with_capacity(4)),
-                    })
-                    .collect(),
-            ),
-        }
-    }
-}
-
 impl<T: Copy + Default> Graph<T> {
     fn new() -> Self {
         Self {
@@ -49,19 +31,12 @@ impl<T: Copy + Default> Graph<T> {
         }
     }
 
-    fn nodes(&mut self, nodes: Vec<T>) -> &mut Self {
-        self.nodes.extend(nodes);
-        self
+    fn nodes(&self) -> &Nodes<T> {
+        &self.nodes
     }
 
-    fn edges(&mut self, edges: Vec<(usize, usize)>) -> &mut Self {
-        self.edges.extend(edges);
-        self
-    }
-
-    // TODO: Implement Iterator
-    fn last(&self) -> Option<&T> {
-        self.nodes.last()
+    fn edges(&self) -> &Edges<T> {
+        &self.edges
     }
 }
 
@@ -76,12 +51,32 @@ impl<T> Nodes<T> {
         self.0.extend(iter)
     }
 
+    fn get(&self, index: usize) -> Option<&T> {
+        self.0.get(index)
+    }
+
     fn first(&self) -> Option<&T> {
         self.0.first()
     }
 
     fn last(&self) -> Option<&T> {
         self.0.last()
+    }
+}
+
+impl<T> From<&(usize, usize)> for Edge<T> {
+    fn from(value: &(usize, usize)) -> Self {
+        Self {
+            from: Index(value.0),
+            to: Index(value.1),
+            weights: Weights(Vec::with_capacity(4)),
+        }
+    }
+}
+
+impl<T> Edge<T> {
+    fn tuple(&self) -> (usize, usize) {
+        (self.from.0, self.to.0)
     }
 }
 
@@ -103,6 +98,24 @@ impl<T> Edges<T> {
     }
 }
 
+macro_rules! graph {
+    ($nodes:expr, $edges:expr) => {{
+        Graph {
+            nodes: Nodes($nodes),
+            edges: Edges(
+                $edges
+                    .into_iter()
+                    .map(|(from, to)| Edge {
+                        from: Index(from),
+                        to: Index(to),
+                        weights: Weights(Vec::with_capacity(4)),
+                    })
+                    .collect(),
+            ),
+        }
+    }};
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -112,8 +125,8 @@ mod tests {
         // The following constructs A -> B -> C; A -> C; C -> A
         let nodes = vec![0, 1, 2, 3];
         let edges: Vec<(usize, usize)> = vec![(0, 1), (1, 2), (0, 2), (2, 0)];
-        let mut graph = Graph::new(); // TODO: graph![]
-        let last = graph.nodes(nodes).edges(edges).last();
-        assert_eq!(Some(&3), last)
+        let graph = graph![nodes.clone(), edges.clone()];
+        assert_eq!(nodes.last(), graph.nodes().last());
+        assert_eq!(edges.last(), graph.edges.last().map(|e| e.tuple()).as_ref());
     }
 }
