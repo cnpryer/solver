@@ -1,0 +1,15 @@
+[package]
+name = "solver_graph"
+version = "0.1.0"
+edition = "2021"
+authors = ["cnpryer <cnpryer@gmail.com>"]
+license = "MIT"
+description = "Fast graph data structures."
+repository = "https://github.com/cnpryer/solver.git"
+homepage = "https://github.com/cnpryer/solver.git"
+readme = "README.md"
+keywords = [
+    "solver"
+]
+
+[dependencies]
