@@ -1,9 +1,10 @@
 use rand::{thread_rng, Rng};
 
-use crate::ga::config::Config;
-use crate::ga::individual::Individual;
-use crate::ga::population::Population;
+use crate::config::Config;
+use crate::individual::Individual;
+use crate::population::Population;
 
+#[allow(dead_code)]
 /// A `Model` is a structure that defines the problem to be solved.
 pub struct Model<'a> {
     /// A group of individuals
@@ -15,6 +16,7 @@ pub struct Model<'a> {
 }
 
 impl Model<'_> {
+    #[allow(dead_code)]
     pub fn new(
         population: Population,
         fitness_fn: &'_ dyn Fn(&Individual) -> u32,
@@ -27,14 +29,17 @@ impl Model<'_> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_config(&self) -> &Config {
         &self.config
     }
 
+    #[allow(dead_code)]
     pub fn get_population(&self) -> &Population {
         &self.population
     }
 
+    #[allow(dead_code)]
     /// Apply a new fitness score to each individual in the population.
     fn score_population(&mut self) {
         // TODO: It's probably unnecessarily expensive to clone each individual like this
@@ -50,6 +55,7 @@ impl Model<'_> {
         self.population.normalize_fitness_scores();
     }
 
+    #[allow(dead_code)]
     /// Selects a subset of the modeled population based on fitness scores and the configured selection rate.
     /// This function assumes the population is pre-sorted by fitness scores
     /// TODO: Use probability based on fitness scores rather than a sorted truncation-like selection.
@@ -60,6 +66,7 @@ impl Model<'_> {
         self.population.get_individuals()[..n].to_vec()
     }
 
+    #[allow(dead_code)]
     /// Create a new `Individual` by breeding two parents using the configured crossover rate.
     fn reproduce(&self, parent_a: &Individual, parent_b: &Individual) -> Individual {
         // `crossover_rate` is used to slice n-length of `parent_a` and the remaining length of `parent_b`
@@ -70,6 +77,7 @@ impl Model<'_> {
         Individual::new(new_genes, u32::MIN)
     }
 
+    #[allow(dead_code)]
     /// Randomly modifies an `Individual` from a pool of genes.
     /// TODO: Use
     fn mutate_individual(&mut self, individual: &mut Individual, gene_pool: &Vec<u32>) {
@@ -84,6 +92,7 @@ impl Model<'_> {
         individual.update_gene(i, new_gene);
     }
 
+    #[allow(dead_code)]
     /// TODO: Need to update the implementation for corrections (See notes).
     /// Run the model.
     /// The first population is assumed to be initialized randomly as the 0th generation. The configured

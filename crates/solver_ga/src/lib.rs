@@ -3,11 +3,16 @@
 /// `ga` (genetic algorithms) is designed to solve both constrained and unconstrained problems by encoding solution traits as
 /// *genes*, solution states as *individuals*, and solution groups as *populations*. Genetic algorithms improve on populations
 /// iteratively (referred to as *generations*) via reproduction and scoring an individual's *fitness*.
-pub mod ga;
+mod config;
+mod individual;
+mod model;
+mod population;
+mod solver;
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::{
+
+    use crate::{
         config::Config, individual::Individual, model::Model, population::Population,
         solver::Solver,
     };

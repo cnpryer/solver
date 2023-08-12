@@ -1,4 +1,4 @@
-name: Build and test rust
+name: ci
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-rust:
-    name: Build and test Rust
+    name: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

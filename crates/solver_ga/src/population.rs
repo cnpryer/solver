@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::ga::individual::Individual;
+use crate::individual::Individual;
 
 /// A `Population` is a group of `Individual`s.
 #[derive(Clone)]
@@ -22,6 +22,7 @@ impl Population {
         }
     }
 
+    #[allow(dead_code)]
     pub fn set_generation(&mut self, generation: u32) {
         self.generation = generation;
     }
@@ -34,6 +35,7 @@ impl Population {
         &self.generation
     }
 
+    #[allow(dead_code)]
     pub fn get_normalized_scores(&self) -> &Option<Vec<f32>> {
         &self.normalized_scores
     }

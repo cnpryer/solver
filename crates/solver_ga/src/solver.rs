@@ -1,13 +1,16 @@
-use crate::ga::model::Model;
+use crate::model::Model;
 
+#[allow(dead_code)]
 const SOLVER_NAME: &str = "GeneticAlgorithm";
 
+#[allow(dead_code)]
 pub struct Solver<'a> {
     name: &'a str,
     model: Model<'a>,
 }
 
 impl Solver<'_> {
+    #[allow(dead_code)]
     pub fn new(model: Model<'_>) -> Solver {
         Solver {
             name: SOLVER_NAME,
@@ -15,14 +18,17 @@ impl Solver<'_> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_name(&self) -> &str {
         self.name
     }
 
+    #[allow(dead_code)]
     pub fn get_model(&self) -> &Model {
         &self.model
     }
 
+    #[allow(dead_code)]
     pub fn solve(&self) {}
 }
 
@@ -30,7 +36,7 @@ impl Solver<'_> {
 mod tests {
     use {
         super::*,
-        crate::ga::{config::Config, individual::Individual, *},
+        crate::{config::Config, individual::Individual, *},
     };
 
     fn mock_fitness_fn(individual: &Individual) -> u32 {

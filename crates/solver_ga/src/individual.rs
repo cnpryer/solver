@@ -3,29 +3,36 @@
 /// For example, in scheduling problems an individual could represent a schedule.
 #[derive(Clone)]
 pub struct Individual {
+    #[allow(dead_code)]
     /// The genes of an individual represented as positive integers.
     genes: Vec<u32>,
+    #[allow(dead_code)]
     /// The fitness (score) of an individual.
     fitness: u32,
 }
 
 impl Individual {
+    #[allow(dead_code)]
     pub fn new(genes: Vec<u32>, fitness: u32) -> Individual {
         Individual { genes, fitness }
     }
 
+    #[allow(dead_code)]
     pub fn update_fitness_score(&mut self, score: u32) {
         self.fitness = score;
     }
 
+    #[allow(dead_code)]
     pub fn get_genes(&self) -> &Vec<u32> {
         &self.genes
     }
 
+    #[allow(dead_code)]
     pub fn get_fitness(&self) -> &u32 {
         &self.fitness
     }
 
+    #[allow(dead_code)]
     /// Update a gene at a specific position.
     pub fn update_gene(&mut self, pos: usize, gene: u32) {
         self.genes[pos] = gene;
