@@ -17,8 +17,8 @@ categories = [
     "mathematics",
 ]
 
-[package.metadata.docs.rs]
-features = ["std"]
+[package.metadata.clippy]
+allow = ["dead_code"]
 
 [dependencies]
 rand = "0.8.5"

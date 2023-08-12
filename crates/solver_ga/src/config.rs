@@ -21,6 +21,7 @@ pub struct Config {
 }
 
 impl Config {
+    #[allow(dead_code)]
     pub fn new(
         max_generations: u32,
         fitness_threshold: Option<u32>,
