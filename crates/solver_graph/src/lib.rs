@@ -82,6 +82,10 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
     }
 }
 
+fn cache_node_attributes<T>(nodes: &Nodes<T>) -> NodeAttributes<T> {
+    NodeAttributes(Vec::with_capacity(nodes.0.len()))
+}
+
 /// Use `find_shortest_path` to construct an array of `Node`s representing the shortest
 /// path in the `Graph`.
 ///
@@ -93,20 +97,20 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
 /// let graph = graph![nodes, edges];
 /// let path = find_shortest_path(&graph).unwrap();
 /// ```
-fn find_shortest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+fn find_shortest_path<T, U: Copy + Into<usize>>(_graph: &mut Graph<T, U>) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_shortest_path_from<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_shortest_path_to<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
@@ -122,20 +126,20 @@ fn find_shortest_path_to<T, U: Copy + Into<usize>>(
 /// let graph = graph![nodes, edges];
 /// let path = find_longest_path(&graph).unwrap();
 /// ```
-fn find_longest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+fn find_longest_path<T, U: Copy + Into<usize>>(_graph: &mut Graph<T, U>) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_longest_path_from<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_longest_path_to<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
@@ -151,20 +155,20 @@ fn find_longest_path_to<T, U: Copy + Into<usize>>(
 /// let graph = graph![nodes, edges];
 /// let path = find_heaviest_path(&graph).unwrap();
 /// ```
-fn find_heaviest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+fn find_heaviest_path<T, U: Copy + Into<usize>>(_graph: &mut Graph<T, U>) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_heaviest_path_from<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_heaviest_path_to<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
@@ -180,20 +184,20 @@ fn find_heaviest_path_to<T, U: Copy + Into<usize>>(
 /// let graph = graph![nodes, edges];
 /// let path = find_lighest_path(&graph).unwrap();
 /// ```
-fn find_lighest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+fn find_lighest_path<T, U: Copy + Into<usize>>(_graph: &Graph<T, U>) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_lighest_path_from<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
 fn find_lighest_path_to<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
-    index: usize,
+    _graph: &Graph<T, U>,
+    _index: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
@@ -234,6 +238,9 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Default for Graph<T, U> {
         Self::new()
     }
 }
+
+#[derive(Debug)]
+struct NodeAttributes<T>(Vec<T>);
 
 #[derive(Clone, Debug)]
 struct Nodes<T>(Vec<T>);
