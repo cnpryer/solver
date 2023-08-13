@@ -230,6 +230,14 @@ fn edge<U: Copy + Into<usize>, T>(from: U, to: U) -> Edge<U, T> {
     }
 }
 
+fn weighted_edge<U: Copy + Into<usize>, T>(from: U, to: U, weights: Vec<T>) -> Edge<U, T> {
+    Edge {
+        from,
+        to,
+        weights: Some(weights),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
