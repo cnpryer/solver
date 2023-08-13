@@ -24,7 +24,7 @@ pub(crate) struct Graph<T, U: Into<usize>> {
     edges: Edges<U, T>,
 }
 
-/// The `Nodes` struct composes `Node` data.
+/// The `Graph` struct composes `Nodes` and `Edges`.
 ///
 /// ```rust
 /// use solver_graph::graph;
