@@ -82,137 +82,69 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
     }
 }
 
-fn cache_node_attributes<T>(nodes: &Nodes<T>) -> NodeAttributes<T> {
-    NodeAttributes(Vec::with_capacity(nodes.0.len()))
-}
-
-/// Use `find_shortest_path` to construct an array of `Node`s representing the shortest
-/// path in the `Graph`.
+/// Sort the `Nodes` of the `Graph`.
 ///
 /// ```rust
-/// use solve_graph::{graph, nodes, edges, find_shortest_path};
+/// use solve_graph::{Graph, sort, node_attributes};
+///
+/// let mut graph = Graph::new();
+/// let mut attrs = node_attributes!(&mut graph)
+/// let mut graph = sort!(&mut graph, &mut attrs);
+/// ```
+fn sort<'a, T, U: Into<usize>>(
+    _graph: &'a mut Graph<T, U>,
+    _attrs: &'a mut NodeAttributes<T>,
+) -> &'a mut Graph<T, U> {
+    unimplemented!()
+}
+
+/// Query the shortest path from a `Graph`.
+///
+/// ```rust
+/// use solve_graph::{graph, nodes, edges, shortest_path};
 ///
 /// let nodes = nodes(vec![0, 1, 2]);
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
 /// let graph = graph![nodes, edges];
-/// let path = find_shortest_path(&graph).unwrap();
+/// let path = find_shortest_path(&graph, 0, 1).unwrap();
 /// ```
-fn find_shortest_path<T, U: Copy + Into<usize>>(_graph: &mut Graph<T, U>) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-fn find_shortest_path_from<T, U: Copy + Into<usize>>(
+fn shortest_path<T, U: Copy + Into<usize>>(
     _graph: &Graph<T, U>,
-    _index: usize,
+    _from: usize,
+    _to: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
-fn find_shortest_path_to<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
-    _index: usize,
-) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-/// Use `find_longest_path` to construct an array of `Node`s representing the longest
-/// path in the `Graph`.
+/// Query the longest path from a `Graph`.
 ///
 /// ```rust
-/// use solve_graph::{graph, nodes, edges, find_longest_path};
+/// use solve_graph::{graph, nodes, edges, longest_path};
 ///
 /// let nodes = nodes(vec![0, 1, 2]);
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
 /// let graph = graph![nodes, edges];
-/// let path = find_longest_path(&graph).unwrap();
+/// let path = longest_path(&graph, 0, 1).unwrap();
 /// ```
-fn find_longest_path<T, U: Copy + Into<usize>>(_graph: &mut Graph<T, U>) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-fn find_longest_path_from<T, U: Copy + Into<usize>>(
+fn longest_path<T, U: Copy + Into<usize>>(
     _graph: &Graph<T, U>,
-    _index: usize,
+    _from: usize,
+    _to: usize,
 ) -> Option<Vec<&T>> {
     unimplemented!()
 }
 
-fn find_longest_path_to<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
-    _index: usize,
-) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-/// Use `find_heaviest_path` to construct an array of `Node`s representing the path with
-/// the most total weght in the `Graph`.
+/// Query the neighbors of a `Node` from a `Graph`.
 ///
 /// ```rust
-/// use solve_graph::{graph, nodes, edges, find_heaviest_path};
-///
-/// let nodes = nodes(vec![0, 1, 2]);
-/// let edges = edges(vec![Some(vec![weighted_edge(0, 1, 10), weighted_edge(0, 2, 10)]), None, None]);
-/// let graph = graph![nodes, edges];
-/// let path = find_heaviest_path(&graph).unwrap();
-/// ```
-fn find_heaviest_path<T, U: Copy + Into<usize>>(_graph: &mut Graph<T, U>) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-fn find_heaviest_path_from<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
-    _index: usize,
-) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-fn find_heaviest_path_to<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
-    _index: usize,
-) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-/// Use `find_lighest_path` to construct an array of `Node`s representing the path with the least
-/// total weight in the `Graph`.
-///
-/// ```rust
-/// use solve_graph::{graph, nodes, edges, find_lighest_path};
-///
-/// let nodes = nodes(vec![0, 1, 2]);
-/// let edges = edges(vec![Some(vec![weighted_edge(0, 1, 0), weighted_edge(0, 2, 0)]), weighted_edge(0, 2, 1)]), None]);
-/// let graph = graph![nodes, edges];
-/// let path = find_lighest_path(&graph).unwrap();
-/// ```
-fn find_lighest_path<T, U: Copy + Into<usize>>(_graph: &Graph<T, U>) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-fn find_lighest_path_from<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
-    _index: usize,
-) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-fn find_lighest_path_to<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
-    _index: usize,
-) -> Option<Vec<&T>> {
-    unimplemented!()
-}
-
-/// Use `find_neighbors` to get the neighbors of a `Node`.
-///
-/// ```rust
-/// use solve_graph::{graph, nodes, edges, find_neighbors};
+/// use solve_graph::{graph, nodes, edges, neighbors};
 ///
 /// let nodes = nodes(vec![0, 1, 2]);
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
 /// let graph = graph![nodes, edges];
-/// let neighbors = find_neighbors(&graph, 0).unwrap();
+/// let neighbors = neighbors(&graph, 0).unwrap();
 /// ```
-fn find_neighbors<T, U: Copy + Into<usize>>(graph: &Graph<T, U>, index: usize) -> Option<Vec<&T>> {
+fn neighbors<T, U: Copy + Into<usize>>(graph: &Graph<T, U>, index: usize) -> Option<Vec<&T>> {
     let edges = match graph.edges.get(index) {
         Some(it) => it,
         None => return None,
@@ -239,11 +171,76 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Default for Graph<T, U> {
     }
 }
 
+/// The `Nodes` struct composes `Node` data.
+///
+/// ```rust
+/// use solver_graph::nodes;
+///
+/// let nodes = nodes(vec![]);
+/// ```
+fn nodes<T>(nodes: Vec<T>) -> Nodes<T> {
+    Nodes(nodes)
+}
+
+/// The `Edges` struct composes `Edge` data.
+///
+/// ```rust
+/// use solver_graph::edges;
+///
+/// let edges = edges(vec![]);
+/// ```
+fn edges<U: Copy + Into<usize>, T>(edges: Vec<Option<Vec<Edge<U, T>>>>) -> Edges<U, T> {
+    Edges(edges)
+}
+
+/// The `Edge` struct composes the indexes of a 'from' and 'to' `Node`.
+///
+/// ```rust
+/// use solver_graph::edge;
+///
+/// let edge = edge(0, 1);
+/// ```
+fn edge<U: Copy + Into<usize>, T>(from: U, to: U) -> Edge<U, T> {
+    Edge {
+        from,
+        to,
+        weights: None,
+    }
+}
+
+/// The `Edge` struct composes the indexes of a 'from` and 'to' `Node`. Some `Edge`s can have
+/// 'weight' data assigned to them.
+///
+/// ```rust
+/// use solver_graph::weighted_edge;
+///
+/// let edge = weighted_edge(0, 1, vec![100]);
+/// ```
+fn weighted_edge<U: Copy + Into<usize>, T>(from: U, to: U, weights: Vec<T>) -> Edge<U, T> {
+    Edge {
+        from,
+        to,
+        weights: Some(weights),
+    }
+}
+
 #[derive(Debug)]
 struct NodeAttributes<T>(Vec<T>);
 
 #[derive(Clone, Debug)]
 struct Nodes<T>(Vec<T>);
+
+/// Get the `NodeAttributes` of a `Graph`.
+///
+/// ```rust
+/// use solve_graph::{Graph, node_attributes};
+///
+/// let mut graph = Graph::new();
+/// let mut attrs = node_attributes!(&mut graph)
+/// ```
+fn node_attributes<T, U: Into<usize>>(graph: &mut Graph<T, U>) -> NodeAttributes<T> {
+    NodeAttributes(Vec::with_capacity(graph.nodes.len()))
+}
 
 impl<T> Nodes<T> {
     /// Get an indexed `Node`.
@@ -280,6 +277,18 @@ impl<T> Nodes<T> {
     /// ```
     fn last(&self) -> Option<&T> {
         self.0.last()
+    }
+
+    /// Get the length of the `Nodes`.
+    ///
+    /// ```rust
+    /// use solver_graph::nodes;
+    ///
+    /// let nodes = nodes(vec![0, 1, 2]);
+    /// let last = nodes.last().unwrap()
+    /// ```
+    fn len(&self) -> usize {
+        self.0.len()
     }
 }
 
@@ -334,7 +343,19 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let last = edges.last().unwrap()
     fn last(&self) -> Option<&Vec<Edge<U, T>>> {
-        get_edges(self, self.0.len() - 1)
+        get_edges(self, self.len() - 1)
+    }
+
+    /// Get the number of edges.
+    ///
+    /// ```rust
+    /// use solver_graph::nodes;
+    ///
+    /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
+    /// let count = edges.len()
+    /// ```
+    fn len(&self) -> usize {
+        self.0.len()
     }
 }
 
@@ -357,30 +378,6 @@ impl<U: PartialEq + Into<usize>, T> PartialEq for Edges<U, T> {
 
 impl<U: PartialEq + Into<usize>, T> Eq for Edges<U, T> {}
 
-fn nodes<T>(nodes: Vec<T>) -> Nodes<T> {
-    Nodes(nodes)
-}
-
-fn edges<U: Copy + Into<usize>, T>(edges: Vec<Option<Vec<Edge<U, T>>>>) -> Edges<U, T> {
-    Edges(edges)
-}
-
-fn edge<U: Copy + Into<usize>, T>(from: U, to: U) -> Edge<U, T> {
-    Edge {
-        from,
-        to,
-        weights: None,
-    }
-}
-
-fn weighted_edge<U: Copy + Into<usize>, T>(from: U, to: U, weights: Vec<T>) -> Edge<U, T> {
-    Edge {
-        from,
-        to,
-        weights: Some(weights),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -394,10 +391,34 @@ mod tests {
     }
 
     #[test]
-    fn test_graph_neighbors() {
+    fn test_nodes() {
+        let nodes = nodes(vec![1]);
+        assert_eq!(nodes.len(), 1);
+        assert_eq!(nodes.first(), Some(&1));
+        assert_eq!(nodes.last(), Some(&1));
+    }
+
+    #[test]
+    fn test_edges() {
+        let edges = sample_edges();
+        assert_eq!(edges.len(), 4);
+        assert_eq!(edges.first(), Some(&vec![edge(0, 1), edge(0, 2)]));
+        assert_eq!(edges.last(), None);
+    }
+
+    #[test]
+    fn test_weighted_edges() {
+        let (nodes, edges) = (sample_nodes(), sample_weighted_edges());
+        let graph = graph![nodes.clone(), edges.clone()];
+        assert_eq!(nodes.last(), graph.nodes().last());
+        assert_eq!(edges.last(), graph.edges().last());
+    }
+
+    #[test]
+    fn test_neighbors() {
         let (nodes, edges) = (sample_nodes(), sample_edges());
         let graph = graph![nodes.clone(), edges.clone()];
-        let neighbors = find_neighbors(&graph, 0).unwrap();
+        let neighbors = neighbors(&graph, 0).unwrap();
         let ans = edges
             .get(0)
             .unwrap()
@@ -406,6 +427,22 @@ mod tests {
             .collect::<Vec<_>>();
         assert_eq!(ans, neighbors);
     }
+
+    // #[test]
+    // fn test_shortest_path() {
+    //     let (nodes, edges) = (sample_nodes(), sample_weighted_edges());
+    //     let graph = graph![nodes.clone(), edges.clone()];
+    //     let path = shortest_path(&graph, 0, 2).unwrap();
+    //     assert_eq!(path, vec![&0, &1, &2]);
+    // }
+
+    // #[test]
+    // fn test_longest_path() {
+    //     let (nodes, edges) = (sample_nodes(), sample_edges());
+    //     let graph = graph![nodes.clone(), edges.clone()];
+    //     let path = longest_path(&graph, 0, 1).unwrap();
+    //     assert_eq!(path, vec![&0, &2]);
+    // }
 
     fn sample_nodes() -> Nodes<i32> {
         nodes(vec![0, 1, 2, 3])
@@ -416,6 +453,18 @@ mod tests {
             Some(vec![edge(0, 1), edge(0, 2)]),
             Some(vec![edge(1, 2)]),
             Some(vec![edge(2, 0)]),
+            None,
+        ])
+    }
+
+    fn sample_weighted_edges() -> Edges<usize, i32> {
+        edges(vec![
+            Some(vec![
+                weighted_edge(0, 1, vec![1]),
+                weighted_edge(0, 2, vec![100]),
+            ]),
+            Some(vec![weighted_edge(1, 2, vec![1])]),
+            Some(vec![weighted_edge(2, 0, vec![2])]),
             None,
         ])
     }
