@@ -12,7 +12,10 @@ enum Sorting {
     #[default]
     Ascend,
     Descend,
+    Constraint(Constraint),
 }
+
+struct Constraint;
 
 #[derive(Debug, Clone)]
 /// `SmallArray` is a compact array data structure for optimizing small graph problem search times.
@@ -63,32 +66,19 @@ fn sort_small_array<T: PartialOrd + Ord>(
     sorting: Sorting,
 ) -> &mut SmallArray<T> {
     match arr {
-        SmallArray::Five(it) => sort_five(it, sorting),
-        SmallArray::Ten(it) => sort_ten(it, sorting),
-        SmallArray::Dynamic(it) => sort_dynamic(it, sorting),
+        SmallArray::Five(it) => sort(it, sorting),
+        SmallArray::Ten(it) => sort(it, sorting),
+        SmallArray::Dynamic(it) => sort(it, sorting),
         _ => (),
     }
     arr
 }
 
-fn sort_five<T: PartialOrd + Ord>(it: &mut [T; 5], sorting: Sorting) {
+fn sort<T: PartialOrd + Ord>(it: &mut [T], sorting: Sorting) {
     match sorting {
         Sorting::Ascend => it.sort(),
         Sorting::Descend => it.reverse(),
-    }
-}
-
-fn sort_ten<T: PartialOrd + Ord>(it: &mut [T; 10], sorting: Sorting) {
-    match sorting {
-        Sorting::Ascend => it.sort(),
-        Sorting::Descend => it.reverse(),
-    }
-}
-
-fn sort_dynamic<T: PartialOrd + Ord>(it: &mut Vec<T>, sorting: Sorting) {
-    match sorting {
-        Sorting::Ascend => it.sort(),
-        Sorting::Descend => it.reverse(),
+        _ => (),
     }
 }
 
