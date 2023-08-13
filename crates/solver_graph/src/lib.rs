@@ -168,7 +168,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     /// let first = edges.get(0).unwrap()
     /// ```
     fn get(&self, index: usize) -> Option<&Vec<Edge<U, T>>> {
-        get_edges(&self, index)
+        get_edges(self, index)
     }
 
     /// Get the first `Edge`.
@@ -180,7 +180,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     /// let first = edges.first().unwrap()
     /// ```
     fn first(&self) -> Option<&Vec<Edge<U, T>>> {
-        get_edges(&self, 0)
+        get_edges(self, 0)
     }
 
     /// Get the last `Edge`.
@@ -191,7 +191,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let last = edges.last().unwrap()
     fn last(&self) -> Option<&Vec<Edge<U, T>>> {
-        get_edges(&self, self.0.len() - 1)
+        get_edges(self, self.0.len() - 1)
     }
 }
 
@@ -250,7 +250,7 @@ mod tests {
         let ans = edges
             .get(0)
             .unwrap()
-            .into_iter()
+            .iter()
             .map(|e| nodes.get(e.to).unwrap())
             .collect::<Vec<_>>();
         assert_eq!(ans, neighbors);
