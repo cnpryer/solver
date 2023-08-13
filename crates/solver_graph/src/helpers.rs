@@ -1,5 +1,6 @@
 use crate::graph::{Edge, Edges, Graph, Nodes};
 
+#[macro_export]
 /// Use `graph![nodes, edges]` to create a `Graph`.
 ///
 /// ```rust
@@ -9,7 +10,6 @@ use crate::graph::{Edge, Edges, Graph, Nodes};
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
 /// let graph = graph![nodes, edges];
 /// ```
-#[macro_export]
 macro_rules! graph {
     ($nodes:expr, $edges:expr) => {{
         $crate::graph::graph($nodes, $edges)
@@ -34,7 +34,10 @@ where
     T: Copy,
     T: Default,
 {
-    graph.edges().get(index).map(|edges| edges.iter().map(|e| &e.to).collect())
+    graph
+        .edges()
+        .get(index)
+        .map(|edges| edges.iter().map(|e| &e.to).collect())
 }
 
 /// The `Nodes` struct composes `Node` data.
