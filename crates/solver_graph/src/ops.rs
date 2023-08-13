@@ -1,4 +1,4 @@
-use crate::graph::Graph;
+use crate::{graph::Graph, Position, Value};
 
 /// Sort the `Nodes` of the `Graph`.
 ///
@@ -8,7 +8,7 @@ use crate::graph::Graph;
 /// let mut graph = Graph::new();
 /// let mut graph = sort(&mut graph);
 /// ```
-pub(crate) fn sort<T, U: Into<usize>>(_graph: &mut Graph<T, U>) -> &mut Graph<T, U> {
+pub(crate) fn sort<P: Position, V: Value>(_graph: &mut Graph<V, P>) -> &mut Graph<V, P> {
     unimplemented!()
 }
 
@@ -22,11 +22,11 @@ pub(crate) fn sort<T, U: Into<usize>>(_graph: &mut Graph<T, U>) -> &mut Graph<T,
 /// let graph = graph![nodes, edges];
 /// let path = find_shortest_path(&graph, 0, 1).unwrap();
 /// ```
-pub(crate) fn shortest_path<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
+pub(crate) fn shortest_path<P: Position, V: Value>(
+    _graph: &Graph<V, P>,
     _from: usize,
     _to: usize,
-) -> Option<Vec<&T>> {
+) -> Option<Vec<&V>> {
     unimplemented!()
 }
 
@@ -40,11 +40,11 @@ pub(crate) fn shortest_path<T, U: Copy + Into<usize>>(
 /// let graph = graph![nodes, edges];
 /// let path = longest_path(&graph, 0, 1).unwrap();
 /// ```
-pub(crate) fn longest_path<T, U: Copy + Into<usize>>(
-    _graph: &Graph<T, U>,
+pub(crate) fn longest_path<P: Position, V: Value>(
+    _graph: &Graph<V, P>,
     _from: usize,
     _to: usize,
-) -> Option<Vec<&T>> {
+) -> Option<Vec<&V>> {
     unimplemented!()
 }
 

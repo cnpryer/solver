@@ -1,7 +1,6 @@
 use std::ops::Deref;
 
-trait Value: Copy + Default + PartialOrd + Ord {}
-impl<T: Copy + Default + PartialOrd + Ord> Value for T {}
+use crate::Value;
 
 #[derive(Debug, Clone)]
 /// `SmallArray` is a compact array data structure for optimizing small graph problem search times.
@@ -82,31 +81,31 @@ enum Sorting {
 
 struct Constraint;
 
-impl<T> Deref for SmallArray<T> {
-    type Target = [T];
+impl<V> Deref for SmallArray<V> {
+    type Target = [V];
 
     fn deref(&self) -> &Self::Target {
         self.as_slice()
     }
 }
 
-impl<'a, T> IntoIterator for &'a SmallArray<T> {
-    type Item = &'a T;
+impl<'a, V> IntoIterator for &'a SmallArray<V> {
+    type Item = &'a V;
 
-    type IntoIter = std::slice::Iter<'a, T>;
+    type IntoIter = std::slice::Iter<'a, V>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
     }
 }
 
-impl<T: Eq> Eq for SmallArray<T> {}
-
-impl<T: PartialEq> PartialEq for SmallArray<T> {
+impl<V: PartialEq + Value> PartialEq for SmallArray<V> {
     fn eq(&self, other: &Self) -> bool {
         self.as_slice() == other.as_slice()
     }
 }
+
+impl<V: Eq + Value> Eq for SmallArray<V> {}
 
 #[cfg(test)]
 mod tests {

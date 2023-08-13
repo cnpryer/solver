@@ -3,6 +3,12 @@ mod helpers;
 mod ops;
 mod small_array;
 
+trait Value: Copy + Default + PartialOrd + Ord + Default {}
+impl<V: Copy + Default + PartialOrd + Ord + Default> Value for V {}
+
+trait Position: Copy + Into<usize> {}
+impl<P: Copy + Into<usize>> Position for P {}
+
 #[cfg(test)]
 mod test_fixtures {
     use crate::{

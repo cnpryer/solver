@@ -1,4 +1,7 @@
-use crate::graph::{Edge, Edges, Graph, Nodes};
+use crate::{
+    graph::{Edge, Edges, Graph, Nodes},
+    Position, Value,
+};
 
 #[macro_export]
 /// Use `graph![nodes, edges]` to create a `Graph`.
@@ -26,14 +29,10 @@ macro_rules! graph {
 /// let graph = graph![nodes, edges];
 /// let neighbors = neighbors(&graph, 0).unwrap();
 /// ```
-pub(crate) fn neighbors<T, U: Copy + Into<usize>>(
-    graph: &Graph<T, U>,
+pub(crate) fn neighbors<V: Value, P: Position>(
+    graph: &Graph<V, P>,
     index: usize,
-) -> Option<Vec<&U>>
-where
-    T: Copy,
-    T: Default,
-{
+) -> Option<Vec<&P>> {
     graph
         .edges()
         .get(index)
@@ -58,7 +57,7 @@ pub(crate) fn nodes<T>(nodes: Vec<T>) -> Nodes<T> {
 ///
 /// let edges = edges(vec![]);
 /// ```
-pub(crate) fn edges<U: Copy + Into<usize>, T>(edges: Vec<Option<Vec<Edge<U, T>>>>) -> Edges<U, T> {
+pub(crate) fn edges<P: Position, V: Value>(edges: Vec<Option<Vec<Edge<P, V>>>>) -> Edges<P, V> {
     Edges(edges)
 }
 
@@ -69,7 +68,7 @@ pub(crate) fn edges<U: Copy + Into<usize>, T>(edges: Vec<Option<Vec<Edge<U, T>>>
 ///
 /// let edge = edge(0, 1);
 /// ```
-pub(crate) fn edge<U: Copy + Into<usize>, T>(from: U, to: U) -> Edge<U, T> {
+pub(crate) fn edge<P: Position, V: Value>(from: P, to: P) -> Edge<P, V> {
     Edge {
         from,
         to,
@@ -85,11 +84,7 @@ pub(crate) fn edge<U: Copy + Into<usize>, T>(from: U, to: U) -> Edge<U, T> {
 ///
 /// let edge = weighted_edge(0, 1, vec![100]);
 /// ```
-pub(crate) fn weighted_edge<U: Copy + Into<usize>, T>(
-    from: U,
-    to: U,
-    weights: Vec<T>,
-) -> Edge<U, T> {
+pub(crate) fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<V>) -> Edge<P, V> {
     Edge {
         from,
         to,

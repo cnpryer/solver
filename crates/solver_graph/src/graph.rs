@@ -1,11 +1,13 @@
+use crate::{Position, Value};
+
 ///! # solver-graph
 ///!
 ///! `Graph` can be used for operations on `Nodes` and `Edges`.
 ///!
 ///! ```rust
-///! struct Graph<T, U: Into<usize>> {
-///!     nodes: Nodes<T>,
-///!     edges: Edges<U, T>,
+///! struct Graph<V, P: Into<usize>> {
+///!     nodes: Nodes<V>,
+///!     edges: Edges<P, V>,
 ///! }
 ///! ```
 ///!
@@ -19,23 +21,23 @@
 ///! let graph = graph![nodes, edges];
 ///! ```
 #[derive(Debug)]
-pub(crate) struct Graph<T, U: Into<usize>> {
-    nodes: Nodes<T>,
-    edges: Edges<U, T>,
+pub(crate) struct Graph<V: Value, P: Position> {
+    nodes: Nodes<V>,
+    edges: Edges<P, V>,
 }
 
-/// The `Graph` struct composes `Nodes` and `Edges`.
+/// The `Nodes` struct composes `Node` data.
 ///
 /// ```rust
 /// use solver_graph::graph;
 ///
 /// let graph = graph(nodes(vec![]), edges(vec![]));
 /// ```
-pub(crate) fn graph<T, U: Into<usize>>(nodes: Nodes<T>, edges: Edges<U, T>) -> Graph<T, U> {
+pub(crate) fn graph<V: Value, P: Position>(nodes: Nodes<V>, edges: Edges<P, V>) -> Graph<V, P> {
     Graph { nodes, edges }
 }
 
-impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
+impl<V: Value, P: Position> Graph<V, P> {
     /// The `Graph` struct composes the `Nodes` and `Edges` for efficient operations.
     ///
     /// ```rust
@@ -58,7 +60,7 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
     /// let graph = Graph::new();
     /// let nodes = graph.nodes();
     /// ```
-    pub(crate) fn nodes(&self) -> &Nodes<T> {
+    pub(crate) fn nodes(&self) -> &Nodes<V> {
         &self.nodes
     }
 
@@ -70,7 +72,7 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
     /// let graph = Graph::new();
     /// let nodes = graph.edges();
     /// ```
-    pub(crate) fn edges(&self) -> &Edges<U, T> {
+    pub(crate) fn edges(&self) -> &Edges<P, V> {
         &self.edges
     }
 }
@@ -82,16 +84,16 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
 ///
 /// let graph = Graph::default();
 /// ```
-impl<T: Copy + Default, U: Copy + Into<usize>> Default for Graph<T, U> {
+impl<V: Value, P: Position> Default for Graph<V, P> {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct Nodes<T>(pub(crate) Vec<T>);
+pub(crate) struct Nodes<V>(pub(crate) Vec<V>);
 
-impl<T> Nodes<T> {
+impl<V> Nodes<V> {
     /// Get an indexed `Node`.
     ///
     /// ```rust
@@ -100,7 +102,7 @@ impl<T> Nodes<T> {
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let first = nodes.get(0).unwrap()
     /// ```
-    pub(crate) fn get(&self, index: usize) -> Option<&T> {
+    pub(crate) fn get(&self, index: usize) -> Option<&V> {
         self.0.get(index)
     }
 
@@ -112,7 +114,7 @@ impl<T> Nodes<T> {
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let first = nodes.first().unwrap()
     /// ```
-    pub(crate) fn first(&self) -> Option<&T> {
+    pub(crate) fn first(&self) -> Option<&V> {
         self.0.first()
     }
 
@@ -124,7 +126,7 @@ impl<T> Nodes<T> {
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let last = nodes.last().unwrap()
     /// ```
-    pub(crate) fn last(&self) -> Option<&T> {
+    pub(crate) fn last(&self) -> Option<&V> {
         self.0.last()
     }
 
@@ -142,24 +144,24 @@ impl<T> Nodes<T> {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct Edges<U: Into<usize>, T>(pub(crate) Vec<Option<Vec<Edge<U, T>>>>);
+pub(crate) struct Edges<P: Position, V: Value>(pub(crate) Vec<Option<Vec<Edge<P, V>>>>);
 
 #[derive(Clone, Debug)]
-pub(crate) struct Edge<U: Into<usize>, T> {
-    pub(crate) from: U,
-    pub(crate) to: U,
-    pub(crate) weights: Option<Vec<T>>,
+pub(crate) struct Edge<P: Position, V> {
+    pub(crate) from: P,
+    pub(crate) to: P,
+    pub(crate) weights: Option<Vec<V>>,
 }
 
-impl<U: PartialEq + Into<usize>, T> PartialEq for Edge<U, T> {
+impl<P: Position + PartialEq, V> PartialEq for Edge<P, V> {
     fn eq(&self, other: &Self) -> bool {
         self.from == other.from && self.to == other.to
     }
 }
 
-impl<U: PartialEq + Into<usize>, T> Eq for Edge<U, T> {}
+impl<P: Position + PartialEq, V: Value> Eq for Edge<P, V> {}
 
-impl<U: Copy + Into<usize>, T> Edges<U, T> {
+impl<P: Position, V: Value> Edges<P, V> {
     /// Get an indexed `Edge`.
     ///
     /// ```rust
@@ -168,7 +170,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.get(0).unwrap()
     /// ```
-    pub(crate) fn get(&self, index: usize) -> Option<&Vec<Edge<U, T>>> {
+    pub(crate) fn get(&self, index: usize) -> Option<&Vec<Edge<P, V>>> {
         get_edges(self, index)
     }
 
@@ -180,7 +182,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.first().unwrap()
     /// ```
-    pub(crate) fn first(&self) -> Option<&Vec<Edge<U, T>>> {
+    pub(crate) fn first(&self) -> Option<&Vec<Edge<P, V>>> {
         get_edges(self, 0)
     }
 
@@ -191,7 +193,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     ///
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let last = edges.last().unwrap()
-    pub(crate) fn last(&self) -> Option<&Vec<Edge<U, T>>> {
+    pub(crate) fn last(&self) -> Option<&Vec<Edge<P, V>>> {
         get_edges(self, self.len() - 1)
     }
 
@@ -208,10 +210,7 @@ impl<U: Copy + Into<usize>, T> Edges<U, T> {
     }
 }
 
-fn get_edges<U: Copy + Into<usize>, T>(
-    edges: &Edges<U, T>,
-    index: usize,
-) -> Option<&Vec<Edge<U, T>>> {
+fn get_edges<P: Position, V: Value>(edges: &Edges<P, V>, index: usize) -> Option<&Vec<Edge<P, V>>> {
     if let Some(edges) = edges.0.get(index) {
         edges.as_ref()
     } else {
@@ -219,13 +218,13 @@ fn get_edges<U: Copy + Into<usize>, T>(
     }
 }
 
-impl<U: PartialEq + Into<usize>, T> PartialEq for Edges<U, T> {
+impl<P: PartialEq + Position, V: Value> PartialEq for Edges<P, V> {
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0
     }
 }
 
-impl<U: PartialEq + Into<usize>, T> Eq for Edges<U, T> {}
+impl<P: Eq + Position, V: Value> Eq for Edges<P, V> {}
 
 #[cfg(test)]
 mod tests {
