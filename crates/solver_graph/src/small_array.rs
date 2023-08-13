@@ -11,7 +11,7 @@ use crate::Value;
 ///
 /// let arr = SmallArray::Five([0; 5]).sorted(Sorting::Ascend);
 /// ```
-pub enum SmallArray<V> {
+pub(crate) enum SmallArray<V> {
     Empty,
     One([V; 1]),
     Five([V; 5]),
