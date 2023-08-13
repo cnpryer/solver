@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-/// The `Sort` trait defines implementations for sortable data strucutres.
+/// The `Sort` trait defines implementations for sortable data structures.
 trait Sort<T> {
     fn sorted(&mut self, sorting: Sorting) -> &mut Self;
 }
