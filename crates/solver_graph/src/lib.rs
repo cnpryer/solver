@@ -62,7 +62,123 @@ impl<T: Copy + Default, U: Copy + Into<usize>> Graph<T, U> {
     }
 }
 
-/// Use `graph![nodes, edges]` to create a `Graph`.
+/// Use `find_shortest_path` to construct an array of `Node`s representing the shortest
+/// path in the `Graph`.
+///
+/// ```rust
+/// use solve_graph::{graph, nodes, edges, find_shortest_path};
+///
+/// let nodes = nodes(vec![0, 1, 2]);
+/// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
+/// let graph = graph![nodes, edges];
+/// let path = find_shortest_path(&graph).unwrap();
+/// ```
+fn find_shortest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_shortest_path_from<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_shortest_path_to<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+/// Use `find_longest_path` to construct an array of `Node`s representing the longest
+/// path in the `Graph`.
+///
+/// ```rust
+/// use solve_graph::{graph, nodes, edges, find_longest_path};
+///
+/// let nodes = nodes(vec![0, 1, 2]);
+/// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
+/// let graph = graph![nodes, edges];
+/// let path = find_longest_path(&graph).unwrap();
+/// ```
+fn find_longest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_longest_path_from<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_longest_path_to<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+/// Use `find_heaviest_path` to construct an array of `Node`s representing the path with
+/// the most total weght in the `Graph`.
+///
+/// ```rust
+/// use solve_graph::{graph, nodes, edges, find_heaviest_path};
+///
+/// let nodes = nodes(vec![0, 1, 2]);
+/// let edges = edges(vec![Some(vec![weighted_edge(0, 1, 10), weighted_edge(0, 2, 10)]), None, None]);
+/// let graph = graph![nodes, edges];
+/// let path = find_heaviest_path(&graph).unwrap();
+/// ```
+fn find_heaviest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_heaviest_path_from<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_heaviest_path_to<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+/// Use `find_lighest_path` to construct an array of `Node`s representing the path with the least
+/// total weight in the `Graph`.
+///
+/// ```rust
+/// use solve_graph::{graph, nodes, edges, find_lighest_path};
+///
+/// let nodes = nodes(vec![0, 1, 2]);
+/// let edges = edges(vec![Some(vec![weighted_edge(0, 1, 0), weighted_edge(0, 2, 0)]), weighted_edge(0, 2, 1)]), None]);
+/// let graph = graph![nodes, edges];
+/// let path = find_lighest_path(&graph).unwrap();
+/// ```
+fn find_lighest_path<T, U: Copy + Into<usize>>(graph: &Graph<T, U>) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_lighest_path_from<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+fn find_lighest_path_to<T, U: Copy + Into<usize>>(
+    graph: &Graph<T, U>,
+    index: usize,
+) -> Option<Vec<&T>> {
+    unimplemented!()
+}
+
+/// Use `find_neighbors` to get the neighbors of a `Node`.
 ///
 /// ```rust
 /// use solve_graph::{graph, nodes, edges, find_neighbors};
