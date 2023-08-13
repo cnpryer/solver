@@ -1,5 +1,4 @@
-
-[![ci](https://github.com/cnpryer/solver/actions/workflows/build.yml/badge.svg)](https://github.com/cnpryer/solver/actions/workflows/build.yml)
+[![tests](https://github.com/cnpryer/solver/actions/workflows/ci.yaml/badge.svg)](https://github.com/cnpryer/solver/actions/workflows/ci.yaml)
 
 # solver
 
