@@ -1,4 +1,4 @@
-use std::ops::{Deref};
+use std::ops::Deref;
 
 /// The `Sort` trait defines implementations for sortable data strucutres.
 trait Sort<T> {
@@ -16,6 +16,7 @@ enum Sorting {
 
 #[derive(Debug, Clone)]
 /// `SmallArray` is a compact array data structure for optimizing small graph problem search times.
+/// The goal is to implement constraint-based sorting for `SmallArray`s.
 ///
 /// ```rust
 /// use solver_graph::SmallArray;
@@ -34,10 +35,10 @@ impl<T> SmallArray<T> {
     fn as_slice(&self) -> &[T] {
         match self {
             Self::Empty => &[],
-            Self::One(v) => v,
-            Self::Five(v) => v,
-            Self::Ten(v) => v,
-            Self::Dynamic(v) => v,
+            Self::One(it) => it,
+            Self::Five(it) => it,
+            Self::Ten(it) => it,
+            Self::Dynamic(it) => it,
         }
     }
 
@@ -46,14 +47,13 @@ impl<T> SmallArray<T> {
     }
 }
 
-/// The `Replace` trait defines implementations for replacing data in arrays.
-trait Replace<T> {
-    fn replace(self, index: usize, value: T) -> Self; // TODO: Might need to be &self -> Self
-}
-
 impl<T: Copy + Default + PartialOrd + Ord> Sort<T> for SmallArray<T> {
     fn sorted(&mut self, sorting: Sorting) -> &mut Self {
-        sort_small_array(self, sorting)
+        if self.empty() {
+            self
+        } else {
+            sort_small_array(self, sorting)
+        }
     }
 }
 
@@ -63,85 +63,32 @@ fn sort_small_array<T: PartialOrd + Ord>(
     sorting: Sorting,
 ) -> &mut SmallArray<T> {
     match arr {
-        SmallArray::Five(it) => {
-            sort_five(it, sorting);
-            arr
-        }
-        SmallArray::Ten(it) => {
-            sort_ten(it, sorting);
-            arr
-        }
-        SmallArray::Dynamic(it) => {
-            sort_dynamic(it, sorting);
-            arr
-        }
-        _ => arr,
+        SmallArray::Five(it) => sort_five(it, sorting),
+        SmallArray::Ten(it) => sort_ten(it, sorting),
+        SmallArray::Dynamic(it) => sort_dynamic(it, sorting),
+        _ => (),
     }
+    arr
 }
 
 fn sort_five<T: PartialOrd + Ord>(it: &mut [T; 5], sorting: Sorting) {
     match sorting {
-        Sorting::Ascend => {
-            it.sort();
-        }
-        _ => unimplemented!(),
+        Sorting::Ascend => it.sort(),
+        Sorting::Descend => it.reverse(),
     }
 }
 
 fn sort_ten<T: PartialOrd + Ord>(it: &mut [T; 10], sorting: Sorting) {
     match sorting {
         Sorting::Ascend => it.sort(),
-        _ => unimplemented!(),
+        Sorting::Descend => it.reverse(),
     }
 }
 
 fn sort_dynamic<T: PartialOrd + Ord>(it: &mut Vec<T>, sorting: Sorting) {
     match sorting {
         Sorting::Ascend => it.sort(),
-        _ => unimplemented!(),
-    }
-}
-
-/// TODO: Can I do unsafe { ... }?
-impl<T: Copy + Default> Replace<T> for SmallArray<T> {
-    fn replace(self, index: usize, value: T) -> Self {
-        match self {
-            Self::Empty => self,
-            Self::One(mut it) => {
-                replace_with_one(&mut it, index, value);
-                self
-            }
-            Self::Five(mut it) => {
-                replace_with_five(&mut it, index, value);
-                self
-            }
-            Self::Ten(mut it) => {
-                replace_with_ten(&mut it, index, value);
-                self
-            }
-            Self::Dynamic(mut it) => {
-                it.remove(index);
-                it.insert(index, value);
-                Self::Dynamic(it)
-            }
-        }
-    }
-}
-
-fn replace_with_one<T: Copy + Default>(it: &mut [T; 1], index: usize, value: T) {
-    it[index] = value
-}
-
-fn replace_with_five<T: Copy + Default>(_it: &mut [T; 5], _index: usize, _value: T) {
-    todo!()
-}
-fn replace_with_ten<T: Copy + Default>(_it: &mut [T; 10], _index: usize, _value: T) {
-    todo!()
-}
-
-impl<T> Default for SmallArray<T> {
-    fn default() -> Self {
-        Self::Empty
+        Sorting::Descend => it.reverse(),
     }
 }
 
@@ -182,19 +129,16 @@ mod tests {
     }
 
     #[test]
-    fn test_replace() {
-        let arr = SmallArray::One([1]).replace(0, 1);
-        assert_eq!(arr, SmallArray::One([1]))
-    }
-
-    #[test]
     fn test_sorted() {
         let mut arr = SmallArray::Five([1, 2, 3, 4, 5]);
-        // let mut desc = arr.clone();
+        let mut desc = arr.clone();
         assert_eq!(
             arr.sorted(Sorting::Ascend),
             &mut SmallArray::Five([1, 2, 3, 4, 5])
         );
-        // assert_eq!(desc.sorted(Sorting::Descend), &mut SmallArray::Five([5, 4, 3, 2, 1]));
+        assert_eq!(
+            desc.sorted(Sorting::Descend),
+            &mut SmallArray::Five([5, 4, 3, 2, 1])
+        );
     }
 }
