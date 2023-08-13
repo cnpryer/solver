@@ -7,15 +7,11 @@ trait Sort<T> {
 
 #[derive(Default)]
 /// The `Sorting` enum provides different variants useful for describing how to sort an array.
+/// TODO: Constraints(vec![Constraint])
 enum Sorting {
     #[default]
     Ascend,
     Descend,
-}
-
-/// The `Replace` trait defines implementations for replacing data in arrays.
-trait Replace<T> {
-    fn replace(&self, index: usize, value: T) -> Self; // TODO: Might need to be &self -> Self
 }
 
 #[derive(Debug, Clone)]
@@ -44,6 +40,15 @@ impl<T> SmallArray<T> {
             Self::Mutable(v) => v,
         }
     }
+
+    fn empty(&self) -> bool {
+        matches!(self, Self::Empty)
+    }
+}
+
+/// The `Replace` trait defines implementations for replacing data in arrays.
+trait Replace<T> {
+    fn replace(self, index: usize, value: T) -> Self; // TODO: Might need to be &self -> Self
 }
 
 impl<T: Copy + Default> Sort<T> for SmallArray<T> {
@@ -53,8 +58,15 @@ impl<T: Copy + Default> Sort<T> for SmallArray<T> {
 }
 
 impl<T: Copy + Default> Replace<T> for SmallArray<T> {
-    fn replace(&self, _index: usize, _value: T) -> Self {
-        unimplemented!()
+    fn replace(self, index: usize, value: T) -> Self {
+        if self.empty() {
+            self
+        } else {
+            let mut arr = self.as_slice().to_vec();
+            arr.remove(index);
+            arr.insert(index, value);
+            Self::Mutable(arr)
+        }
     }
 }
 
@@ -96,7 +108,13 @@ mod tests {
 
     #[test]
     fn test_small_array() {
-        let arr = SmallArray::Five([0; 5]).sorted(Sorting::Ascend);
-        assert_ne!(arr, SmallArray::Five([0; 5]))
+        let arr = SmallArray::Five([0; 5]);
+        assert_ne!(arr, SmallArray::Five([1; 5]))
+    }
+
+    #[test]
+    fn test_replace() {
+        let arr = SmallArray::One([1]).replace(0, 1);
+        assert_eq!(arr, SmallArray::One([1]))
     }
 }
