@@ -1,21 +1,7 @@
 use std::ops::Deref;
 
-/// The `Sort` trait defines implementations for sortable data structures.
-trait Sort<T> {
-    fn sorted(&mut self, sorting: Sorting) -> &mut Self;
-}
-
-#[derive(Default)]
-/// The `Sorting` enum provides different variants useful for describing how to sort an array.
-/// TODO: Constraints(vec![Constraint])
-enum Sorting {
-    #[default]
-    Ascend,
-    Descend,
-    Constraint(Constraint),
-}
-
-struct Constraint;
+trait Value: Copy + Default + PartialOrd + Ord {}
+impl<T: Copy + Default + PartialOrd + Ord> Value for T {}
 
 #[derive(Debug, Clone)]
 /// `SmallArray` is a compact array data structure for optimizing small graph problem search times.
@@ -50,7 +36,7 @@ impl<T> SmallArray<T> {
     }
 }
 
-impl<T: Copy + Default + PartialOrd + Ord> Sort<T> for SmallArray<T> {
+impl<T: Value> Sort<T> for SmallArray<T> {
     fn sorted(&mut self, sorting: Sorting) -> &mut Self {
         if self.empty() {
             self
@@ -61,10 +47,7 @@ impl<T: Copy + Default + PartialOrd + Ord> Sort<T> for SmallArray<T> {
 }
 
 /// Sort a `SmallArray` with some `Sorting` variant. TODO:
-fn sort_small_array<T: PartialOrd + Ord>(
-    arr: &mut SmallArray<T>,
-    sorting: Sorting,
-) -> &mut SmallArray<T> {
+fn sort_small_array<T: Value>(arr: &mut SmallArray<T>, sorting: Sorting) -> &mut SmallArray<T> {
     match arr {
         SmallArray::Five(it) => sort(it, sorting),
         SmallArray::Ten(it) => sort(it, sorting),
@@ -74,13 +57,30 @@ fn sort_small_array<T: PartialOrd + Ord>(
     arr
 }
 
-fn sort<T: PartialOrd + Ord>(it: &mut [T], sorting: Sorting) {
+fn sort<T: Value>(it: &mut [T], sorting: Sorting) {
     match sorting {
         Sorting::Ascend => it.sort(),
         Sorting::Descend => it.reverse(),
         _ => (),
     }
 }
+
+/// The `Sort` trait defines implementations for sortable data structures.
+trait Sort<T> {
+    fn sorted(&mut self, sorting: Sorting) -> &mut Self;
+}
+
+#[derive(Default)]
+/// The `Sorting` enum provides different variants useful for describing how to sort an array.
+/// TODO: Constraints(vec![Constraint])
+enum Sorting {
+    #[default]
+    Ascend,
+    Descend,
+    Constraint(Constraint),
+}
+
+struct Constraint;
 
 impl<T> Deref for SmallArray<T> {
     type Target = [T];
