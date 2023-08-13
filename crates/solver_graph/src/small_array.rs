@@ -35,7 +35,7 @@ impl<T> SmallArray<T> {
     }
 }
 
-impl<T: Value> Sort<T> for SmallArray<T> {
+impl<T: Value + PartialOrd + Ord> Sort<T> for SmallArray<T> {
     fn sorted(&mut self, sorting: Sorting) -> &mut Self {
         if self.empty() {
             self
@@ -46,7 +46,10 @@ impl<T: Value> Sort<T> for SmallArray<T> {
 }
 
 /// Sort a `SmallArray` with some `Sorting` variant. TODO:
-fn sort_small_array<T: Value>(arr: &mut SmallArray<T>, sorting: Sorting) -> &mut SmallArray<T> {
+fn sort_small_array<T: Value + PartialOrd + Ord>(
+    arr: &mut SmallArray<T>,
+    sorting: Sorting,
+) -> &mut SmallArray<T> {
     match arr {
         SmallArray::Five(it) => sort(it, sorting),
         SmallArray::Ten(it) => sort(it, sorting),
@@ -56,7 +59,7 @@ fn sort_small_array<T: Value>(arr: &mut SmallArray<T>, sorting: Sorting) -> &mut
     arr
 }
 
-fn sort<T: Value>(it: &mut [T], sorting: Sorting) {
+fn sort<T: Value + PartialOrd + Ord>(it: &mut [T], sorting: Sorting) {
     match sorting {
         Sorting::Ascend => it.sort(),
         Sorting::Descend => it.reverse(),
