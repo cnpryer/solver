@@ -1,6 +1,7 @@
 mod graph;
 mod helpers;
 mod ops;
+mod small_array;
 
 #[cfg(test)]
 mod test_fixtures {
