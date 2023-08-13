@@ -26,7 +26,7 @@ pub(crate) struct Graph<V: Value, P: Position> {
     edges: Edges<P, V>,
 }
 
-/// The `Nodes` struct composes `Node` data.
+/// The `Graph` is composed of `Nodes` and `Edges`.
 ///
 /// ```rust
 /// use solver_graph::graph;
