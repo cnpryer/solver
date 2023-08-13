@@ -29,22 +29,12 @@ macro_rules! graph {
 pub(crate) fn neighbors<T, U: Copy + Into<usize>>(
     graph: &Graph<T, U>,
     index: usize,
-) -> Option<Vec<&T>>
+) -> Option<Vec<&U>>
 where
     T: Copy,
     T: Default,
 {
-    let edges = match graph.edges().get(index) {
-        Some(it) => it,
-        None => return None,
-    };
-    let mut neighbors = Vec::with_capacity(edges.len());
-    for edge in edges {
-        if let Some(node) = graph.nodes().get(edge.to.into()) {
-            neighbors.push(node);
-        }
-    }
-    Some(neighbors)
+    graph.edges().get(index).map(|edges| edges.iter().map(|e| &e.to).collect())
 }
 
 /// The `Nodes` struct composes `Node` data.
@@ -113,13 +103,13 @@ mod tests {
     #[test]
     fn test_neighbors() {
         let (nodes, edges) = (sample_nodes(), sample_edges());
-        let graph = graph![nodes.clone(), edges.clone()];
+        let graph = graph![nodes, edges.clone()];
         let neighbors = neighbors(&graph, 0).unwrap();
         let ans = edges
             .get(0)
             .unwrap()
             .iter()
-            .map(|e| nodes.get(e.to).unwrap())
+            .map(|e| &e.to)
             .collect::<Vec<_>>();
         assert_eq!(ans, neighbors);
     }

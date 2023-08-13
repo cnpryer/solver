@@ -10,7 +10,7 @@ mod test_fixtures {
     };
 
     pub(crate) fn sample_nodes() -> Nodes<i32> {
-        nodes(vec![0, 1, 2, 3])
+        nodes(vec![0, 0, 0, 0])
     }
 
     pub(crate) fn sample_edges() -> Edges<usize, i32> {

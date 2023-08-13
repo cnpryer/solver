@@ -15,5 +15,5 @@ let edges = edges(
 )
 let graph = graph![nodes, edges];
 let path = shortest_path(&graph, 0, 2).unwrap()
-assert_eq!(path, vec![&0, &0, &0]);
+assert_eq!(path, vec![&0, &1, &2]);
 ```
