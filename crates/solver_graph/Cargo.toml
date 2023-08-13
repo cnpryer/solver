@@ -12,4 +12,7 @@ keywords = [
     "solver"
 ]
 
+[lib]
+doctest = false
+
 [dependencies]
