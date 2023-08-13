@@ -5,14 +5,7 @@ struct Index(usize);
 struct Nodes<T>(Vec<T>);
 
 #[derive(Debug)]
-struct Edges<T>(Vec<Edge<T>>);
-
-#[derive(Debug)]
-struct Edge<T> {
-    from: Index,
-    to: Index,
-    weights: Weights<T>,
-}
+struct Edges(Vec<Vec<usize>>);
 
 #[derive(Debug)]
 struct Weights<T>(Vec<T>);
@@ -20,7 +13,7 @@ struct Weights<T>(Vec<T>);
 #[derive(Debug)]
 struct Graph<T> {
     nodes: Nodes<T>,
-    edges: Edges<T>,
+    edges: Edges,
 }
 
 impl<T: Copy + Default> Graph<T> {
@@ -35,18 +28,22 @@ impl<T: Copy + Default> Graph<T> {
         &self.nodes
     }
 
-    fn edges(&self) -> &Edges<T> {
+    fn edges(&self) -> &Edges {
         &self.edges
     }
 
-    fn neighbors(&self, index: usize) -> Vec<&T> {
-        // TODO: Implement Iterator<Item = Edge<T>>
-        self.edges
-            .0
-            .iter()
-            .filter(|e| e.from.0 == index)
-            .filter_map(|e| self.nodes.get(e.to.0))
-            .collect()
+    fn neighbors(&self, index: usize) -> Option<Vec<&T>> {
+        let to = match self.edges.get(index) {
+            Some(it) => it,
+            None => return None,
+        };
+        let mut neighbors = Vec::new();
+        for idx in to {
+            if let Some(node) = self.nodes.get(*idx) {
+                neighbors.push(node);
+            }
+        }
+        Some(neighbors)
     }
 }
 
@@ -74,54 +71,27 @@ impl<T> Nodes<T> {
     }
 }
 
-impl<T> From<&(usize, usize)> for Edge<T> {
-    fn from(value: &(usize, usize)) -> Self {
-        Self {
-            from: Index(value.0),
-            to: Index(value.1),
-            weights: Weights(Vec::with_capacity(4)),
-        }
-    }
-}
-
-impl<T> Edge<T> {
-    fn tuple(&self) -> (usize, usize) {
-        (self.from.0, self.to.0)
-    }
-}
-
-impl<T> Edges<T> {
-    fn extend<I: IntoIterator<Item = (usize, usize)>>(&mut self, iter: I) {
-        self.0.extend(iter.into_iter().map(|(from, to)| Edge {
-            from: Index(from),
-            to: Index(to),
-            weights: Weights(Vec::with_capacity(4)),
-        }))
+impl Edges {
+    fn get(&self, index: usize) -> Option<&Vec<usize>> {
+        self.0.get(index)
     }
 
-    fn first(&self) -> Option<&Edge<T>> {
+    fn first(&self) -> Option<&Vec<usize>> {
         self.0.first()
     }
 
-    fn last(&self) -> Option<&Edge<T>> {
+    fn last(&self) -> Option<&Vec<usize>> {
         self.0.last()
     }
 }
 
 macro_rules! graph {
     ($nodes:expr, $edges:expr) => {{
+        assert_eq!($nodes.len(), $edges.len());
+
         Graph {
             nodes: Nodes($nodes),
-            edges: Edges(
-                $edges
-                    .into_iter()
-                    .map(|(from, to)| Edge {
-                        from: Index(from),
-                        to: Index(to),
-                        weights: Weights(Vec::with_capacity(4)),
-                    })
-                    .collect(),
-            ),
+            edges: Edges($edges),
         }
     }};
 }
@@ -135,21 +105,28 @@ mod tests {
         let (nodes, edges) = (sample_nodes(), sample_edges());
         let graph = graph![nodes.clone(), edges.clone()];
         assert_eq!(nodes.last(), graph.nodes().last());
-        assert_eq!(edges.last(), graph.edges.last().map(|e| e.tuple()).as_ref());
+        assert_eq!(edges.last(), graph.edges.last());
     }
 
     #[test]
     fn test_graph_neighbors() {
         let (nodes, edges) = (sample_nodes(), sample_edges());
         let graph = graph![nodes.clone(), edges.clone()];
-        assert_eq!(vec![&1, &2], graph.neighbors(0));
+        let neighbors = graph.neighbors(0).unwrap();
+        let ans = edges
+            .get(0)
+            .unwrap()
+            .into_iter()
+            .filter_map(|i| nodes.get(*i))
+            .collect::<Vec<_>>();
+        assert_eq!(ans, neighbors);
     }
 
     fn sample_nodes() -> Vec<i32> {
         vec![0, 1, 2, 3]
     }
 
-    fn sample_edges() -> Vec<(usize, usize)> {
-        vec![(0, 1), (1, 2), (0, 2), (2, 0)]
+    fn sample_edges() -> Vec<Vec<usize>> {
+        vec![vec![1, 2], vec![2], vec![0], vec![]]
     }
 }
