@@ -6,7 +6,7 @@ A fast solver library for Rust.
 
 # Goals
 
-- Basic solver
-- Solver http runner
-- WASM PoC
 - Performance
+- Small binaries
+- Solver APIs
+- Playground
