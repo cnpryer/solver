@@ -116,7 +116,6 @@ impl<V> Deref for SmallArray<V> {
 
 impl<'a, V> IntoIterator for &'a SmallArray<V> {
     type Item = &'a V;
-
     type IntoIter = std::slice::Iter<'a, V>;
 
     fn into_iter(self) -> Self::IntoIter {
