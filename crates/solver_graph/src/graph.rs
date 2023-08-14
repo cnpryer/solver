@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use crate::{small_array::SmallArray, Position, Value};
 
 ///! # solver-graph
@@ -217,41 +219,50 @@ where
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
 }
 
-impl<P: Eq + Position, V: Value> Eq for Edges<P, V> where Edge<P, V>: Default + Copy {}
+impl<P: Eq + Position, V: Value + Eq> Eq for Edges<P, V> where Edge<P, V>: Default + Copy {}
 
-impl<P: Position, V: PartialEq + Value> PartialEq for SmallArray<Edge<P, V>> {
+impl<P: Position + PartialEq, V: PartialEq + Value> PartialEq for SmallArray<Edge<P, V>> {
     fn eq(&self, other: &Self) -> bool {
-        self == other
+        match (self, other) {
+            (SmallArray::Dynamic(a), SmallArray::Dynamic(b)) => a == b,
+            (SmallArray::Dynamic(a), _) => compare_to_static(a, other),
+            (_, SmallArray::Dynamic(b)) => compare_to_static(b, self),
+            (a, b) => compare_static(a, b),
+        }
     }
 }
 
-impl<P: Position, V: Eq + Value> Eq for SmallArray<Edge<P, V>> {}
+fn compare_to_static<P: Position + PartialEq, V: Value + PartialEq>(
+    a: &Vec<Edge<P, V>>,
+    b: &SmallArray<Edge<P, V>>,
+) -> bool {
+    a.as_slice() == b.deref()
+}
+fn compare_static<P: Position + PartialEq, V: Value + PartialEq>(
+    a: &SmallArray<Edge<P, V>>,
+    b: &SmallArray<Edge<P, V>>,
+) -> bool {
+    a.deref() == b.deref()
+}
+
+impl<P: Position + Eq, V: Value + Eq> Eq for SmallArray<Edge<P, V>> {}
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
-        helpers::{nodes},
+        helpers::{edge, nodes},
         test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
     };
-
-    use super::*;
 
     #[test]
     fn test_graph() {
         let (nodes, edges) = (sample_nodes(), sample_edges());
         let graph = graph(nodes.clone(), edges.clone());
         assert_eq!(nodes.first(), graph.nodes().first());
-        assert_eq!(
-            edges.first().unwrap().len(),
-            graph.edges().first().unwrap().len()
-        );
-        // assert_eq!(edges.first(), graph.edges().first()); // TODO(cnpryer): Getting stackoverflow
+        assert_eq!(edges.first(), graph.edges().first());
     }
 
     #[test]
@@ -266,18 +277,18 @@ mod tests {
     fn test_edges() {
         let edges = sample_edges();
         assert_eq!(edges.len(), 4);
-        // assert_eq!(   // TODO(cnpryer): Getting stackoverflow
-        //     edges.first(),
-        //     Some(&SmallArray::Two([edge(0, 1), edge(0, 2)]))
-        // );
-        // assert_eq!(edges.last(), Some(&SmallArray::Empty));
+        assert_eq!(
+            edges.first(),
+            Some(&SmallArray::Two([edge(0, 1), edge(0, 2)]))
+        );
+        assert_eq!(edges.last(), Some(&SmallArray::Empty));
     }
 
     #[test]
     fn test_weighted_edges() {
         let (nodes, edges) = (sample_nodes(), sample_weighted_edges());
-        let graph = graph(nodes.clone(), edges);
+        let graph = graph(nodes.clone(), edges.clone());
         assert_eq!(nodes.last(), graph.nodes().last());
-        // assert_eq!(edges.last(), graph.edges().last());  // TODO(cnpryer): Getting stackoverflow
+        assert_eq!(edges.last(), graph.edges().last());
     }
 }
