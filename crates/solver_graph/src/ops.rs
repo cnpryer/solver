@@ -54,13 +54,19 @@ pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord + Add<Outpu
                     graph
                         .nodes()
                         .get(current.into())
-                        .unwrap_or_else(|| panic!("node ({:?})", current)),
+                        .unwrap_or_else(|| panic!("invalid node ({:?})", current)),
                 );
                 if current == start {
                     break;
                 }
                 current = *prev;
             }
+            path.push(
+                graph
+                    .nodes()
+                    .get(start.into())
+                    .unwrap_or_else(|| panic!("invalid from node ({:?})", start)),
+            );
             path.reverse();
             return Some(path);
         }

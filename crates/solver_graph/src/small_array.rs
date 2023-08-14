@@ -84,14 +84,13 @@ impl<V: PartialOrd + Ord> Sort<V> for SmallArray<V> {
 
 impl<V: Copy + Add<Output = V>> Reduce<V> for SmallArray<V> {
     fn reduce(&self, reducer: Reducer<V>) -> SmallArray<V> {
-        match reducer {
-            Reducer::Sum => unimplemented!(),
-            Reducer::SumArray(SmallArray::Empty) => SmallArray::Empty,
-            Reducer::SumArray(SmallArray::One(it)) if it.is_empty() || self.is_empty() => {
-                SmallArray::Empty
+        match (self, reducer) {
+            (Self::Empty, Reducer::SumArray(Self::Empty)) => Self::Empty,
+            (Self::Empty, Reducer::SumArray(SmallArray::One(b))) => SmallArray::One([b[0]]),
+            (Self::One(a), Reducer::SumArray(Self::Empty)) => SmallArray::One([a[0]]),
+            (Self::One(a), Reducer::SumArray(b)) if !a.is_empty() && !b.is_empty() => {
+                SmallArray::One([a[0] + b[0]])
             }
-            Reducer::SumArray(SmallArray::One(it)) => SmallArray::One([self.as_slice()[0] + it[0]]),
-            Reducer::SumArrays(_) => unimplemented!(),
             _ => unimplemented!(),
         }
     }
