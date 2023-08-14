@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 ///! # solver-graph
 ///!
 ///! `Graph` can be used for operations on `Nodes` and `Edges`.
@@ -27,5 +29,5 @@ mod small_array;
 trait Value: Default + Copy + Clone {}
 impl<V: Default + Copy + Clone> Value for V {}
 
-trait Position: Default + Copy + Clone + Into<usize> {}
-impl<P: Default + Copy + Clone + Into<usize>> Position for P {}
+trait Position: Default + Copy + Clone + Into<usize> + Debug {}
+impl<P: Default + Copy + Clone + Into<usize> + Debug> Position for P {}

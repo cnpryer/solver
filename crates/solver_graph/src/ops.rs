@@ -48,21 +48,21 @@ pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord>(
             // Found the target node, reconstruct the path
             let mut path = Vec::new();
             let mut current = node;
-
             while let Some(Some(prev)) = prev_nodes.get(&current) {
-                path.push(current);
+                // Node is on path
+                path.push(
+                    graph
+                        .nodes()
+                        .get(current.into())
+                        .expect(&format!("node ({:?})", current)),
+                );
                 if current == start {
                     break;
                 }
                 current = *prev;
             }
-
             path.reverse();
-            return Some(
-                path.iter_mut()
-                    .filter_map(|i| graph.nodes().get((*i).into()))
-                    .collect(),
-            );
+            return Some(path);
         }
 
         // TODO(cnpryer): Can I implement a cheaper `Copy` for `SmallArray<V>`? Don't want to clone
