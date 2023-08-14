@@ -8,9 +8,9 @@ use solver_graph::{graph, nodes, edges, shortest_path};
 let nodes = nodes(vec![0, 0, 0]);
 let edges = edges(
     vec![
-        Some(vec![weighted_edge(0, 1, vec![1]), weighted_edge(0, 2, vec![10])]),
-        Some(vec![weighted_edge(1, 2, vec![1])]),
-        None,
+        vec![weighted_edge(0, 1, vec![1]), weighted_edge(0, 2, vec![10])],
+        vec![weighted_edge(1, 2, vec![1])],
+        vec![],
     ]
 )
 let graph = graph![nodes, edges];
