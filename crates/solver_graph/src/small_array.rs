@@ -14,7 +14,14 @@ use crate::Value;
 pub(crate) enum SmallArray<V> {
     Empty,
     One([V; 1]),
+    Two([V; 2]),
+    Three([V; 3]),
+    Four([V; 4]),
     Five([V; 5]),
+    Six([V; 6]),
+    Seven([V; 7]),
+    Eight([V; 8]),
+    Nine([V; 9]),
     Ten([V; 10]),
     Dynamic(Vec<V>),
 }
@@ -22,11 +29,18 @@ pub(crate) enum SmallArray<V> {
 impl<V> SmallArray<V> {
     fn as_slice(&self) -> &[V] {
         match self {
-            Self::Empty => &[],
-            Self::One(it) => it,
-            Self::Five(it) => it,
-            Self::Ten(it) => it,
-            Self::Dynamic(it) => it,
+            SmallArray::Empty => &[],
+            SmallArray::One(it) => it,
+            SmallArray::Two(it) => it,
+            SmallArray::Three(it) => it,
+            SmallArray::Four(it) => it,
+            SmallArray::Five(it) => it,
+            SmallArray::Six(it) => it,
+            SmallArray::Seven(it) => it,
+            SmallArray::Eight(it) => it,
+            SmallArray::Nine(it) => it,
+            SmallArray::Ten(it) => it,
+            SmallArray::Dynamic(it) => it,
         }
     }
 
@@ -51,10 +65,18 @@ fn sort_small_array<V: Value + PartialOrd + Ord>(
     sorting: Sorting,
 ) -> &mut SmallArray<V> {
     match arr {
-        SmallArray::Five(it) => sort(it, sorting),
         SmallArray::Ten(it) => sort(it, sorting),
+        SmallArray::One(it) => sort(it, sorting),
+        SmallArray::Two(it) => sort(it, sorting),
+        SmallArray::Three(it) => sort(it, sorting),
+        SmallArray::Four(it) => sort(it, sorting),
+        SmallArray::Five(it) => sort(it, sorting),
+        SmallArray::Six(it) => sort(it, sorting),
+        SmallArray::Seven(it) => sort(it, sorting),
+        SmallArray::Eight(it) => sort(it, sorting),
+        SmallArray::Nine(it) => sort(it, sorting),
         SmallArray::Dynamic(it) => sort(it, sorting),
-        _ => (),
+        SmallArray::Empty => (),
     }
     arr
 }
@@ -116,8 +138,8 @@ mod tests {
 
     #[test]
     fn test_small_array() {
-        let arr = SmallArray::Five([0; 5]);
-        assert_ne!(arr, SmallArray::Five([1; 5]))
+        let arr = SmallArray::Two([0, 5]);
+        assert_ne!(arr, SmallArray::Two([1, 5]));
     }
 
     #[test]
