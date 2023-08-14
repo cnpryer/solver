@@ -108,7 +108,7 @@ pub(crate) fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<
 
 #[cfg(test)]
 mod tests {
-    use crate::test_fixtures::{sample_edges, sample_nodes};
+    use crate::graph::test_fixtures::{sample_edges, sample_nodes};
 
     use super::*;
 
