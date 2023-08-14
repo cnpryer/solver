@@ -5,7 +5,7 @@
 ```rust
 use solver_graph::{graph, nodes, edges, shortest_path};
 
-let nodes = nodes(vec![0, 0, 0]);
+let nodes = nodes(vec![0, 1, 2]);
 let edges = edges(
     vec![
         vec![weighted_edge(0, 1, vec![1]), weighted_edge(0, 2, vec![10])],
