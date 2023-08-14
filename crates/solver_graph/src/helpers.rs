@@ -1,5 +1,6 @@
 use crate::{
     graph::{Edge, Edges, Graph, Nodes},
+    small_array::SmallArray,
     Position, Value,
 };
 
@@ -57,8 +58,20 @@ pub(crate) fn nodes<V>(nodes: Vec<V>) -> Nodes<V> {
 ///
 /// let edges = edges(vec![]);
 /// ```
-pub(crate) fn edges<P: Position, V: Value>(edges: Vec<Option<Vec<Edge<P, V>>>>) -> Edges<P, V> {
-    Edges(edges)
+pub(crate) fn edges<P: Position, V: Value>(edges: Vec<Vec<Edge<P, V>>>) -> Edges<P, V> {
+    // TODO
+    Edges(
+        edges
+            .into_iter()
+            .map(|e| {
+                if e.is_empty() {
+                    SmallArray::Empty
+                } else {
+                    SmallArray::Dynamic(e)
+                }
+            })
+            .collect(),
+    )
 }
 
 /// The `Edge` struct composes the indexes of a 'from' and 'to' `Node`.
@@ -85,10 +98,11 @@ pub(crate) fn edge<P: Position, V: Value>(from: P, to: P) -> Edge<P, V> {
 /// let edge = weighted_edge(0, 1, vec![100]);
 /// ```
 pub(crate) fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<V>) -> Edge<P, V> {
+    // TODO
     Edge {
         from,
         to,
-        weights: Some(weights),
+        weights: Some(SmallArray::Dynamic(weights)),
     }
 }
 

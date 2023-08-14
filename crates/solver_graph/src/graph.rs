@@ -1,4 +1,6 @@
-use crate::{Position, Value};
+use std::ops::Deref;
+
+use crate::{small_array::SmallArray, Position, Value};
 
 ///! # solver-graph
 ///!
@@ -143,23 +145,23 @@ impl<V> Nodes<V> {
     }
 }
 
-#[derive(Clone, Debug)]
-pub(crate) struct Edges<P: Position, V: Value>(pub(crate) Vec<Option<Vec<Edge<P, V>>>>);
+#[derive(Default, Clone, Debug)]
+pub(crate) struct Edges<P: Position, V: Value>(pub(crate) Vec<SmallArray<Edge<P, V>>>);
 
-#[derive(Clone, Debug)]
-pub(crate) struct Edge<P: Position, V> {
+#[derive(Default, Clone, Debug)]
+pub(crate) struct Edge<P: Position, V: Value> {
     pub(crate) from: P,
     pub(crate) to: P,
-    pub(crate) weights: Option<Vec<V>>,
+    pub(crate) weights: Option<SmallArray<V>>,
 }
 
-impl<P: Position + PartialEq, V> PartialEq for Edge<P, V> {
+impl<P: Position + PartialEq, V: Value> PartialEq for Edge<P, V> {
     fn eq(&self, other: &Self) -> bool {
         self.from == other.from && self.to == other.to
     }
 }
 
-impl<P: Position + PartialEq, V: Value> Eq for Edge<P, V> {}
+impl<P: Position + Eq, V: Value> Eq for Edge<P, V> {}
 
 impl<P: Position, V: Value> Edges<P, V> {
     /// Get an indexed `Edge`.
@@ -170,8 +172,8 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.get(0).unwrap()
     /// ```
-    pub(crate) fn get(&self, index: usize) -> Option<&Vec<Edge<P, V>>> {
-        get_edges(self, index)
+    pub(crate) fn get(&self, index: usize) -> Option<&SmallArray<Edge<P, V>>> {
+        self.0.get(index)
     }
 
     /// Get the first `Edge`.
@@ -182,8 +184,8 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.first().unwrap()
     /// ```
-    pub(crate) fn first(&self) -> Option<&Vec<Edge<P, V>>> {
-        get_edges(self, 0)
+    pub(crate) fn first(&self) -> Option<&SmallArray<Edge<P, V>>> {
+        self.0.get(0)
     }
 
     /// Get the last `Edge`.
@@ -193,8 +195,8 @@ impl<P: Position, V: Value> Edges<P, V> {
     ///
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let last = edges.last().unwrap()
-    pub(crate) fn last(&self) -> Option<&Vec<Edge<P, V>>> {
-        get_edges(self, self.len() - 1)
+    pub(crate) fn last(&self) -> Option<&SmallArray<Edge<P, V>>> {
+        self.0.get(self.len() - 1)
     }
 
     /// Get the number of edges.
@@ -210,30 +212,50 @@ impl<P: Position, V: Value> Edges<P, V> {
     }
 }
 
-fn get_edges<P: Position, V: Value>(edges: &Edges<P, V>, index: usize) -> Option<&Vec<Edge<P, V>>> {
-    if let Some(edges) = edges.0.get(index) {
-        edges.as_ref()
-    } else {
-        None
-    }
-}
-
-impl<P: PartialEq + Position, V: Value> PartialEq for Edges<P, V> {
+impl<P: PartialEq + Position, V: Value> PartialEq for Edges<P, V>
+where
+    Edge<P, V>: Default + Copy,
+{
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0
     }
 }
 
-impl<P: Eq + Position, V: Value> Eq for Edges<P, V> {}
+impl<P: Eq + Position, V: Value + Eq> Eq for Edges<P, V> where Edge<P, V>: Default + Copy {}
+
+impl<P: Position + PartialEq, V: PartialEq + Value> PartialEq for SmallArray<Edge<P, V>> {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (SmallArray::Dynamic(a), SmallArray::Dynamic(b)) => a == b,
+            (SmallArray::Dynamic(a), _) => compare_to_static(a, other),
+            (_, SmallArray::Dynamic(b)) => compare_to_static(b, self),
+            (a, b) => compare_static(a, b),
+        }
+    }
+}
+
+fn compare_to_static<P: Position + PartialEq, V: Value + PartialEq>(
+    a: &Vec<Edge<P, V>>,
+    b: &SmallArray<Edge<P, V>>,
+) -> bool {
+    a.as_slice() == b.deref()
+}
+fn compare_static<P: Position + PartialEq, V: Value + PartialEq>(
+    a: &SmallArray<Edge<P, V>>,
+    b: &SmallArray<Edge<P, V>>,
+) -> bool {
+    a.deref() == b.deref()
+}
+
+impl<P: Position + Eq, V: Value + Eq> Eq for SmallArray<Edge<P, V>> {}
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         helpers::{edge, nodes},
         test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
     };
-
-    use super::*;
 
     #[test]
     fn test_graph() {
@@ -255,8 +277,11 @@ mod tests {
     fn test_edges() {
         let edges = sample_edges();
         assert_eq!(edges.len(), 4);
-        assert_eq!(edges.first(), Some(&vec![edge(0, 1), edge(0, 2)]));
-        assert_eq!(edges.last(), None);
+        assert_eq!(
+            edges.first(),
+            Some(&SmallArray::Two([edge(0, 1), edge(0, 2)]))
+        );
+        assert_eq!(edges.last(), Some(&SmallArray::Empty));
     }
 
     #[test]

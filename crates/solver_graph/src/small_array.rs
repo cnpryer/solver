@@ -65,7 +65,6 @@ fn sort_small_array<V: Value + PartialOrd + Ord>(
     sorting: Sorting,
 ) -> &mut SmallArray<V> {
     match arr {
-        SmallArray::Ten(it) => sort(it, sorting),
         SmallArray::One(it) => sort(it, sorting),
         SmallArray::Two(it) => sort(it, sorting),
         SmallArray::Three(it) => sort(it, sorting),
@@ -75,6 +74,7 @@ fn sort_small_array<V: Value + PartialOrd + Ord>(
         SmallArray::Seven(it) => sort(it, sorting),
         SmallArray::Eight(it) => sort(it, sorting),
         SmallArray::Nine(it) => sort(it, sorting),
+        SmallArray::Ten(it) => sort(it, sorting),
         SmallArray::Dynamic(it) => sort(it, sorting),
         SmallArray::Empty => (),
     }
