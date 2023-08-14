@@ -1,3 +1,23 @@
+///! # solver-graph
+///!
+///! `Graph` can be used for operations on `Nodes` and `Edges`.
+///!
+///! ```rust
+///! struct Graph<V, P: Into<usize>> {
+///!     nodes: Nodes<V>,
+///!     edges: Edges<P, V>,
+///! }
+///! ```
+///!
+///! Constructing a `Graph` requires using the `graph!` macro to index `nodes` and `edges`.
+///!
+///! ```rust
+///! use solve_graph::{graph, nodes, edges};
+///!
+///! let nodes = nodes(vec![0, 1, 2]);
+///! let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
+///! let graph = graph![nodes, edges];
+///! ```
 mod graph;
 mod helpers;
 mod ops;
@@ -8,34 +28,3 @@ impl<V: Default + Copy> Value for V {}
 
 trait Position: Default + Copy + Into<usize> {}
 impl<P: Default + Copy + Into<usize>> Position for P {}
-
-#[cfg(test)]
-mod test_fixtures {
-    use crate::{
-        graph::{Edges, Nodes},
-        helpers::{edge, edges, nodes, weighted_edge},
-    };
-
-    pub(crate) fn sample_nodes() -> Nodes<i32> {
-        println!("test");
-        nodes(vec![0, 0, 0, 0])
-    }
-
-    pub(crate) fn sample_edges() -> Edges<usize, i32> {
-        edges(vec![
-            vec![edge(0, 1), edge(0, 2)],
-            vec![edge(1, 2)],
-            vec![edge(2, 0)],
-            vec![],
-        ])
-    }
-
-    pub(crate) fn sample_weighted_edges() -> Edges<usize, i32> {
-        edges(vec![
-            vec![weighted_edge(0, 1, vec![1]), weighted_edge(0, 2, vec![100])],
-            vec![weighted_edge(1, 2, vec![1])],
-            vec![weighted_edge(2, 0, vec![2])],
-            vec![],
-        ])
-    }
-}

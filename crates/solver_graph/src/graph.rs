@@ -1,27 +1,15 @@
+use crate::{small_array::SmallArray, Position, Value};
 use std::ops::Deref;
 
-use crate::{small_array::SmallArray, Position, Value};
-
-///! # solver-graph
-///!
-///! `Graph` can be used for operations on `Nodes` and `Edges`.
-///!
-///! ```rust
-///! struct Graph<V, P: Into<usize>> {
-///!     nodes: Nodes<V>,
-///!     edges: Edges<P, V>,
-///! }
-///! ```
-///!
-///! Constructing a `Graph` requires using the `graph!` macro to index `nodes` and `edges`.
-///!
-///! ```rust
-///! use solve_graph::{graph, nodes, edges};
-///!
-///! let nodes = nodes(vec![0, 1, 2]);
-///! let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
-///! let graph = graph![nodes, edges];
-///! ```
+/// `Graph`s are compact data structures composed of `Nodes` and `Edges`.
+///
+///  ```rust
+/// use solve_graph::{graph, nodes, edges};
+///
+/// let nodes = nodes(vec![0, 1, 2]);
+/// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
+/// let graph = graph![nodes, edges];
+/// ```
 #[derive(Debug)]
 pub(crate) struct Graph<V: Value, P: Position> {
     nodes: Nodes<V>,
@@ -155,13 +143,19 @@ pub(crate) struct Edge<P: Position, V: Value> {
     pub(crate) weights: Option<SmallArray<V>>,
 }
 
-impl<P: Position + PartialEq, V: Value> PartialEq for Edge<P, V> {
+impl<P: Position + PartialEq, V: Value + PartialEq> PartialEq for Edge<P, V> {
     fn eq(&self, other: &Self) -> bool {
-        self.from == other.from && self.to == other.to
+        // TODO(cnpryer): Better weight handling
+        let eq = self.from == other.from && self.to == other.to;
+        match (&self.weights, &other.weights) {
+            (Some(a), Some(b)) if eq => a == b,
+            (None, None) if eq => true,
+            _ => false,
+        }
     }
 }
 
-impl<P: Position + Eq, V: Value> Eq for Edge<P, V> {}
+impl<P: Position + Eq, V: Value + Eq> Eq for Edge<P, V> {}
 
 impl<P: Position, V: Value> Edges<P, V> {
     /// Get an indexed `Edge`.
@@ -212,27 +206,13 @@ impl<P: Position, V: Value> Edges<P, V> {
     }
 }
 
-impl<P: PartialEq + Position, V: Value> PartialEq for Edges<P, V>
-where
-    Edge<P, V>: Default + Copy,
-{
+impl<P: PartialEq + Position, V: Value + PartialEq> PartialEq for Edges<P, V> {
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0
     }
 }
 
-impl<P: Eq + Position, V: Value + Eq> Eq for Edges<P, V> where Edge<P, V>: Default + Copy {}
-
-impl<P: Position + PartialEq, V: PartialEq + Value> PartialEq for SmallArray<Edge<P, V>> {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (SmallArray::Dynamic(a), SmallArray::Dynamic(b)) => a == b,
-            (SmallArray::Dynamic(a), _) => compare_to_static(a, other),
-            (_, SmallArray::Dynamic(b)) => compare_to_static(b, self),
-            (a, b) => compare_static(a, b),
-        }
-    }
-}
+impl<P: Position + Eq, V: Value + Eq> Eq for Edges<P, V> {}
 
 fn compare_to_static<P: Position + PartialEq, V: Value + PartialEq>(
     a: &Vec<Edge<P, V>>,
@@ -247,14 +227,12 @@ fn compare_static<P: Position + PartialEq, V: Value + PartialEq>(
     a.deref() == b.deref()
 }
 
-impl<P: Position + Eq, V: Value + Eq> Eq for SmallArray<Edge<P, V>> {}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
+        graph::test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
         helpers::{edge, nodes},
-        test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
     };
 
     #[test]
@@ -290,5 +268,36 @@ mod tests {
         let graph = graph(nodes.clone(), edges.clone());
         assert_eq!(nodes.last(), graph.nodes().last());
         assert_eq!(edges.last(), graph.edges().last());
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_fixtures {
+    use crate::{
+        graph::{Edges, Nodes},
+        helpers::{edge, edges, nodes, weighted_edge},
+    };
+
+    pub(crate) fn sample_nodes() -> Nodes<i32> {
+        println!("test");
+        nodes(vec![0, 0, 0, 0])
+    }
+
+    pub(crate) fn sample_edges() -> Edges<usize, i32> {
+        edges(vec![
+            vec![edge(0, 1), edge(0, 2)],
+            vec![edge(1, 2)],
+            vec![edge(2, 0)],
+            vec![],
+        ])
+    }
+
+    pub(crate) fn sample_weighted_edges() -> Edges<usize, i32> {
+        edges(vec![
+            vec![weighted_edge(0, 1, vec![1]), weighted_edge(0, 2, vec![100])],
+            vec![weighted_edge(1, 2, vec![1])],
+            vec![weighted_edge(2, 0, vec![2])],
+            vec![],
+        ])
     }
 }

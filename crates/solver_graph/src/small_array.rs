@@ -1,7 +1,5 @@
 use std::ops::Deref;
 
-use crate::Value;
-
 #[derive(Debug, Clone)]
 /// `SmallArray` is a compact array data structure for optimizing small graph problem search times.
 /// The goal is to implement constraint-based sorting for `SmallArray`s.
@@ -49,7 +47,7 @@ impl<V> SmallArray<V> {
     }
 }
 
-impl<V: Value + PartialOrd + Ord> Sort<V> for SmallArray<V> {
+impl<V: PartialOrd + Ord> Sort<V> for SmallArray<V> {
     fn sorted(&mut self, sorting: Sorting) -> &mut Self {
         if self.empty() {
             self
@@ -60,7 +58,7 @@ impl<V: Value + PartialOrd + Ord> Sort<V> for SmallArray<V> {
 }
 
 /// Sort a `SmallArray` with some `Sorting` variant. TODO:
-fn sort_small_array<V: Value + PartialOrd + Ord>(
+fn sort_small_array<V: PartialOrd + Ord>(
     arr: &mut SmallArray<V>,
     sorting: Sorting,
 ) -> &mut SmallArray<V> {
@@ -81,7 +79,7 @@ fn sort_small_array<V: Value + PartialOrd + Ord>(
     arr
 }
 
-fn sort<V: Value + PartialOrd + Ord>(it: &mut [V], sorting: Sorting) {
+fn sort<V: PartialOrd + Ord>(it: &mut [V], sorting: Sorting) {
     match sorting {
         Sorting::Ascend => it.sort(),
         Sorting::Descend => it.reverse(),
@@ -123,13 +121,13 @@ impl<'a, V> IntoIterator for &'a SmallArray<V> {
     }
 }
 
-impl<V: PartialEq + Value> PartialEq for SmallArray<V> {
+impl<V: PartialEq> PartialEq for SmallArray<V> {
     fn eq(&self, other: &Self) -> bool {
         self.as_slice() == other.as_slice()
     }
 }
 
-impl<V: Eq + Value> Eq for SmallArray<V> {}
+impl<V: Eq> Eq for SmallArray<V> {}
 
 #[cfg(test)]
 mod tests {
