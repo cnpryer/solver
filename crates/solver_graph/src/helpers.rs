@@ -95,11 +95,16 @@ pub(crate) fn edge<P: Position, V: Value>(from: P, to: P) -> Edge<P, V> {
 /// let edge = weighted_edge(0, 1, vec![100]);
 /// ```
 pub(crate) fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<V>) -> Edge<P, V> {
-    // TODO
+    // TODO(cnpryer): https://github.com/cnpryer/solver/issues/50
+    assert!(weights.is_empty() || weights.len() == 1);
     Edge {
         from,
         to,
-        weights: Some(SmallArray::Dynamic(weights)),
+        weights: Some(if weights.is_empty() {
+            SmallArray::Empty
+        } else {
+            SmallArray::One([weights[0]])
+        }),
     }
 }
 

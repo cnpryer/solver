@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::HashMap, hash::Hash, ops::Add};
 
 use crate::{
     graph::Graph,
@@ -29,7 +29,7 @@ pub(crate) fn sort<P: Position, V: Value>(_graph: &mut Graph<V, P>) -> &mut Grap
 /// let graph = graph![nodes, edges];
 /// let path = find_shortest_path(&graph, 0, 1).unwrap();
 /// ```
-pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord>(
+pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord + Add<Output = V>>(
     graph: &Graph<V, P>,
     from: P,
     to: P,
