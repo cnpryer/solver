@@ -1,4 +1,14 @@
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
+
+// TODO(cnpryer): arr.reduce(&arr).operation(Operation::Default).resolve() ?
+pub(crate) trait Reduce<V> {
+    fn reduce(&self, arr: &SmallArray<V>, op: Operation) -> SmallArray<V>;
+}
+
+/// The `Sort` trait defines implementations for sortable data structures.
+pub(crate) trait Sort<V> {
+    fn sorted(&mut self, sorting: Sorting) -> &mut Self;
+}
 
 #[derive(Debug, Clone)]
 /// `SmallArray` is a compact array data structure for optimizing small graph problem search times.
@@ -25,7 +35,23 @@ pub(crate) enum SmallArray<V> {
 }
 
 impl<V> SmallArray<V> {
-    fn as_slice(&self) -> &[V] {
+    pub(crate) fn push(&mut self, value: V) {
+        match self {
+            SmallArray::Empty => (),
+            SmallArray::Dynamic(it) => it.push(value),
+            _ => unimplemented!(),
+        }
+    }
+
+    pub(crate) fn pop(&mut self) -> Option<V> {
+        match self {
+            SmallArray::Empty => None,
+            SmallArray::Dynamic(it) => it.pop(),
+            _ => unimplemented!(),
+        }
+    }
+
+    pub(crate) fn as_slice(&self) -> &[V] {
         match self {
             SmallArray::Empty => &[],
             SmallArray::One(it) => it,
@@ -42,18 +68,24 @@ impl<V> SmallArray<V> {
         }
     }
 
-    fn empty(&self) -> bool {
-        matches!(self, Self::Empty)
+    pub(crate) fn is_empty(&self) -> bool {
+        matches!(self, Self::Empty) || self.as_slice().is_empty()
     }
 }
 
 impl<V: PartialOrd + Ord> Sort<V> for SmallArray<V> {
     fn sorted(&mut self, sorting: Sorting) -> &mut Self {
-        if self.empty() {
+        if self.is_empty() {
             self
         } else {
             sort_small_array(self, sorting)
         }
+    }
+}
+
+impl<V> Reduce<V> for SmallArray<V> {
+    fn reduce(&self, _arr: &SmallArray<V>, _op: Operation) -> SmallArray<V> {
+        unimplemented!()
     }
 }
 
@@ -87,28 +119,45 @@ fn sort<V: PartialOrd + Ord>(it: &mut [V], sorting: Sorting) {
     }
 }
 
-/// The `Sort` trait defines implementations for sortable data structures.
-trait Sort<V> {
-    fn sorted(&mut self, sorting: Sorting) -> &mut Self;
-}
-
 #[derive(Default)]
 /// The `Sorting` enum provides different variants useful for describing how to sort an array.
 /// TODO: Constraints(vec![Constraint])
-enum Sorting {
+pub(crate) enum Sorting {
     #[default]
     Ascend,
     Descend,
     Constraint(Constraint),
 }
 
-struct Constraint;
+pub(crate) struct Constraint;
+pub(crate) enum Operation {
+    Sum,
+}
 
 impl<V> Deref for SmallArray<V> {
     type Target = [V];
 
     fn deref(&self) -> &Self::Target {
         self.as_slice()
+    }
+}
+
+impl<V> DerefMut for SmallArray<V> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        match self {
+            SmallArray::Empty => &mut [],
+            SmallArray::One(inner) => inner,
+            SmallArray::Two(inner) => inner,
+            SmallArray::Three(inner) => inner,
+            SmallArray::Four(inner) => inner,
+            SmallArray::Five(inner) => inner,
+            SmallArray::Six(inner) => inner,
+            SmallArray::Seven(inner) => inner,
+            SmallArray::Eight(inner) => inner,
+            SmallArray::Nine(inner) => inner,
+            SmallArray::Ten(inner) => inner,
+            SmallArray::Dynamic(inner) => inner.as_mut_slice(),
+        }
     }
 }
 
@@ -128,6 +177,18 @@ impl<V: PartialEq> PartialEq for SmallArray<V> {
 }
 
 impl<V: Eq> Eq for SmallArray<V> {}
+
+impl<V: PartialOrd> PartialOrd for SmallArray<V> {
+    fn partial_cmp(&self, _other: &Self) -> Option<std::cmp::Ordering> {
+        unimplemented!()
+    }
+}
+
+impl<V: Ord> Ord for SmallArray<V> {
+    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
+        unimplemented!()
+    }
+}
 
 #[cfg(test)]
 mod tests {
