@@ -30,10 +30,7 @@ macro_rules! graph {
 /// let graph = graph![nodes, edges];
 /// let neighbors = neighbors(&graph, 0).unwrap();
 /// ```
-pub(crate) fn neighbors<V: Value, P: Position>(
-    graph: &Graph<V, P>,
-    index: usize,
-) -> Option<Vec<&P>> {
+pub(crate) fn neighbors<V: Value, P: Position>(graph: &Graph<V, P>, index: P) -> Option<Vec<&P>> {
     graph
         .edges()
         .get(index)

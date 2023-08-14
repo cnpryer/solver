@@ -21,10 +21,11 @@
 mod graph;
 mod helpers;
 mod ops;
+mod queue;
 mod small_array;
 
-trait Value: Default + Copy {}
-impl<V: Default + Copy> Value for V {}
+trait Value: Default + Copy + Clone {}
+impl<V: Default + Copy + Clone> Value for V {}
 
-trait Position: Default + Copy + Into<usize> {}
-impl<P: Default + Copy + Into<usize>> Position for P {}
+trait Position: Default + Copy + Clone + Into<usize> {}
+impl<P: Default + Copy + Clone + Into<usize>> Position for P {}

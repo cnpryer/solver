@@ -143,6 +143,12 @@ pub(crate) struct Edge<P: Position, V: Value> {
     pub(crate) weights: Option<SmallArray<V>>,
 }
 
+impl<P: Position, V: Value> Edge<P, V> {
+    pub(crate) fn weights(&self) -> Option<&SmallArray<V>> {
+        self.weights.as_ref()
+    }
+}
+
 impl<P: Position + PartialEq, V: Value + PartialEq> PartialEq for Edge<P, V> {
     fn eq(&self, other: &Self) -> bool {
         // TODO(cnpryer): Better weight handling
@@ -157,6 +163,26 @@ impl<P: Position + PartialEq, V: Value + PartialEq> PartialEq for Edge<P, V> {
 
 impl<P: Position + Eq, V: Value + Eq> Eq for Edge<P, V> {}
 
+impl<P: Position + PartialOrd, V: Value + PartialEq + Ord> PartialOrd for Edge<P, V> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match self.from.partial_cmp(&other.from) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+        match self.to.partial_cmp(&other.to) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+        self.weights.partial_cmp(&other.weights)
+    }
+}
+
+impl<P: Position + Ord, V: Value + Ord> Ord for Edge<P, V> {
+    fn cmp(&self, _other: &Self) -> std::cmp::Ordering {
+        unimplemented!()
+    }
+}
+
 impl<P: Position, V: Value> Edges<P, V> {
     /// Get an indexed `Edge`.
     ///
@@ -166,8 +192,8 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.get(0).unwrap()
     /// ```
-    pub(crate) fn get(&self, index: usize) -> Option<&SmallArray<Edge<P, V>>> {
-        self.0.get(index)
+    pub(crate) fn get(&self, index: P) -> Option<&SmallArray<Edge<P, V>>> {
+        self.0.get(index.into())
     }
 
     /// Get the first `Edge`.
@@ -220,6 +246,7 @@ fn compare_to_static<P: Position + PartialEq, V: Value + PartialEq>(
 ) -> bool {
     a.as_slice() == b.deref()
 }
+
 fn compare_static<P: Position + PartialEq, V: Value + PartialEq>(
     a: &SmallArray<Edge<P, V>>,
     b: &SmallArray<Edge<P, V>>,
