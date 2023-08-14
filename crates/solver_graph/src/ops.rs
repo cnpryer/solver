@@ -3,7 +3,7 @@ use std::{collections::HashMap, hash::Hash};
 use crate::{
     graph::Graph,
     queue::PriorityQueue,
-    small_array::{Operation, Reduce, SmallArray},
+    small_array::{Reduce, Reducer, SmallArray},
     Position, Value,
 };
 
@@ -54,7 +54,7 @@ pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord>(
                     graph
                         .nodes()
                         .get(current.into())
-                        .expect(&format!("node ({:?})", current)),
+                        .unwrap_or_else(|| panic!("node ({:?})", current)),
                 );
                 if current == start {
                     break;
@@ -69,7 +69,9 @@ pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord>(
         if let Some(edges) = graph.edges().get(node) {
             for edge in edges.iter() {
                 let to = &edge.to;
-                let w = weight.reduce(edge.weights().unwrap_or(&SmallArray::Empty), Operation::Sum);
+                let w = weight.reduce(Reducer::SumArray(
+                    edge.weights().unwrap_or(&SmallArray::Empty),
+                ));
                 if let Some(d) = weights.get(to) {
                     if &w < d {
                         weights.insert(*to, w.clone());

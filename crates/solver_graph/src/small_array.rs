@@ -1,8 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
-// TODO(cnpryer): arr.reduce(&arr).operation(Operation::Default).resolve() ?
 pub(crate) trait Reduce<V> {
-    fn reduce(&self, arr: &SmallArray<V>, op: Operation) -> SmallArray<V>;
+    fn reduce(&self, reducer: Reducer<V>) -> SmallArray<V>;
 }
 
 /// The `Sort` trait defines implementations for sortable data structures.
@@ -84,7 +83,7 @@ impl<V: PartialOrd + Ord> Sort<V> for SmallArray<V> {
 }
 
 impl<V> Reduce<V> for SmallArray<V> {
-    fn reduce(&self, _arr: &SmallArray<V>, _op: Operation) -> SmallArray<V> {
+    fn reduce(&self, _reducer: Reducer<V>) -> SmallArray<V> {
         unimplemented!()
     }
 }
@@ -130,8 +129,10 @@ pub(crate) enum Sorting {
 }
 
 pub(crate) struct Constraint;
-pub(crate) enum Operation {
+pub(crate) enum Reducer<'a, V> {
     Sum,
+    SumArray(&'a SmallArray<V>),
+    SumArrays(SmallArray<&'a SmallArray<V>>),
 }
 
 impl<V> Deref for SmallArray<V> {
