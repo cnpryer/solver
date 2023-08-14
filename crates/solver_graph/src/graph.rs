@@ -143,19 +143,19 @@ pub(crate) struct Edge<P: Position, V: Value> {
     pub(crate) weights: Option<SmallArray<V>>,
 }
 
-impl<P: Position + PartialEq, V: Value> PartialEq for Edge<P, V> {
+impl<P: Position + PartialEq, V: Value + PartialEq> PartialEq for Edge<P, V> {
     fn eq(&self, other: &Self) -> bool {
         // TODO(cnpryer): Better weight handling
         let eq = self.from == other.from && self.to == other.to;
-        match (self.weights, other.weights) {
-            (Some(a), Some(b)) => a == b,
-            (None, None) => true,
+        match (&self.weights, &other.weights) {
+            (Some(a), Some(b)) if eq => a == b,
+            (None, None) if eq => true,
             _ => false,
         }
     }
 }
 
-impl<P: Position + Eq, V: Value> Eq for Edge<P, V> {}
+impl<P: Position + Eq, V: Value + Eq> Eq for Edge<P, V> {}
 
 impl<P: Position, V: Value> Edges<P, V> {
     /// Get an indexed `Edge`.
@@ -206,27 +206,13 @@ impl<P: Position, V: Value> Edges<P, V> {
     }
 }
 
-impl<P: PartialEq + Position, V: Value> PartialEq for Edges<P, V>
-where
-    Edge<P, V>: Default + Copy,
-{
+impl<P: PartialEq + Position, V: Value + PartialEq> PartialEq for Edges<P, V> {
     fn eq(&self, other: &Self) -> bool {
         self.0 == other.0
     }
 }
 
-impl<P: Eq + Position, V: Value + Eq> Eq for Edges<P, V> where Edge<P, V>: Default + Copy {}
-
-impl<P: Position + PartialEq, V: PartialEq + Value> PartialEq for SmallArray<Edge<P, V>> {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (SmallArray::Dynamic(a), SmallArray::Dynamic(b)) => a == b,
-            (SmallArray::Dynamic(a), _) => compare_to_static(a, other),
-            (_, SmallArray::Dynamic(b)) => compare_to_static(b, self),
-            (a, b) => compare_static(a, b),
-        }
-    }
-}
+impl<P: Position + Eq, V: Value + Eq> Eq for Edges<P, V> {}
 
 fn compare_to_static<P: Position + PartialEq, V: Value + PartialEq>(
     a: &Vec<Edge<P, V>>,
@@ -240,8 +226,6 @@ fn compare_static<P: Position + PartialEq, V: Value + PartialEq>(
 ) -> bool {
     a.deref() == b.deref()
 }
-
-impl<P: Position + Eq, V: Value + Eq> Eq for SmallArray<Edge<P, V>> {}
 
 #[cfg(test)]
 mod tests {
