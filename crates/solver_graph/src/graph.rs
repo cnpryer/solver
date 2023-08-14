@@ -236,7 +236,7 @@ impl<P: Position, V: Eq + Value> Eq for SmallArray<Edge<P, V>> {}
 #[cfg(test)]
 mod tests {
     use crate::{
-        helpers::{edge, nodes},
+        helpers::{nodes},
         test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
     };
 
@@ -276,7 +276,7 @@ mod tests {
     #[test]
     fn test_weighted_edges() {
         let (nodes, edges) = (sample_nodes(), sample_weighted_edges());
-        let graph = graph(nodes.clone(), edges.clone());
+        let graph = graph(nodes.clone(), edges);
         assert_eq!(nodes.last(), graph.nodes().last());
         // assert_eq!(edges.last(), graph.edges().last());  // TODO(cnpryer): Getting stackoverflow
     }
