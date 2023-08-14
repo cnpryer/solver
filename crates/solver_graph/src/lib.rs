@@ -17,27 +17,25 @@ mod test_fixtures {
     };
 
     pub(crate) fn sample_nodes() -> Nodes<i32> {
+        println!("test");
         nodes(vec![0, 0, 0, 0])
     }
 
     pub(crate) fn sample_edges() -> Edges<usize, i32> {
         edges(vec![
-            Some(vec![edge(0, 1), edge(0, 2)]),
-            Some(vec![edge(1, 2)]),
-            Some(vec![edge(2, 0)]),
-            None,
+            vec![edge(0, 1), edge(0, 2)],
+            vec![edge(1, 2)],
+            vec![edge(2, 0)],
+            vec![],
         ])
     }
 
     pub(crate) fn sample_weighted_edges() -> Edges<usize, i32> {
         edges(vec![
-            Some(vec![
-                weighted_edge(0, 1, vec![1]),
-                weighted_edge(0, 2, vec![100]),
-            ]),
-            Some(vec![weighted_edge(1, 2, vec![1])]),
-            Some(vec![weighted_edge(2, 0, vec![2])]),
-            None,
+            vec![weighted_edge(0, 1, vec![1]), weighted_edge(0, 2, vec![100])],
+            vec![weighted_edge(1, 2, vec![1])],
+            vec![weighted_edge(2, 0, vec![2])],
+            vec![],
         ])
     }
 }
