@@ -2,6 +2,9 @@
 
 Compact data structures for fast graph-based solutions.
 
+- [x] `SmallGraph`
+- [ ] [Tinygraph port](https://github.com/cnpryer/solver/issues/57) (or equivalent; see [#50](https://github.com/cnpryer/solver/issues/50), [#43](https://github.com/cnpryer/solver/issues/43))
+
 ## `SmallGraph`
 
 Use `graph!` to build a `SmallGraph` from `Nodes` and `Edges`.
