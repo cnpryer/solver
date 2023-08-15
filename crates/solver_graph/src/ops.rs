@@ -1,36 +1,36 @@
 use std::{collections::HashMap, hash::Hash, ops::Add};
 
 use crate::{
-    graph::Graph,
     queue::PriorityQueue,
     small_array::{Reduce, Reducer, SmallArray},
+    small_graph::SmallGraph,
     Position, Value,
 };
 
-/// Sort the `Nodes` of the `Graph`.
+/// Sort the `Nodes` of the `SmallGraph`.
 ///
 /// ```rust
-/// use solve_graph::{Graph, sort};
+/// use solve_graph::small_graph::{SmallGraph, sort};
 ///
-/// let mut graph = Graph::new();
+/// let mut graph = SmallGraph::new();
 /// let mut graph = sort(&mut graph);
 /// ```
-pub(crate) fn sort<P: Position, V: Value>(_graph: &mut Graph<V, P>) -> &mut Graph<V, P> {
+pub(crate) fn sort<P: Position, V: Value>(_graph: &mut SmallGraph<V, P>) -> &mut SmallGraph<V, P> {
     unimplemented!()
 }
 
-/// Query the shortest path from a `Graph`.
+/// Query the shortest path from a `SmallGraph`.
 ///
 /// ```rust
-/// use solve_graph::{graph, nodes, edges, shortest_path};
+/// use solve_graph::small_graph::{graph, nodes, edges, shortest_path};
 ///
 /// let nodes = nodes(vec![0, 1, 2]);
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
 /// let graph = graph![nodes, edges];
-/// let path = find_shortest_path(&graph, 0, 1).unwrap();
+/// let path = shortest_path(&graph, 0, 1).unwrap();
 /// ```
-pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord + Add<Output = V>>(
-    graph: &Graph<V, P>,
+pub fn shortest_path<P: Position + Ord + Hash, V: Value + Ord + Add<Output = V>>(
+    graph: &SmallGraph<V, P>,
     from: P,
     to: P,
 ) -> Option<Vec<&V>> {
@@ -96,10 +96,10 @@ pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord + Add<Outpu
     None // No path found
 }
 
-/// Query the longest path from a `Graph`.
+/// Query the longest path from a `SmallGraph`.
 ///
 /// ```rust
-/// use solve_graph::{graph, nodes, edges, longest_path};
+/// use solve_graph::small_graph::{graph, nodes, edges, longest_path}};
 ///
 /// let nodes = nodes(vec![0, 1, 2]);
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
@@ -107,7 +107,7 @@ pub(crate) fn shortest_path<P: Position + Ord + Hash, V: Value + Ord + Add<Outpu
 /// let path = longest_path(&graph, 0, 1).unwrap();
 /// ```
 pub(crate) fn longest_path<P: Position, V: Value>(
-    _graph: &Graph<V, P>,
+    _graph: &SmallGraph<V, P>,
     _from: usize,
     _to: usize,
 ) -> Option<Vec<&V>> {
@@ -119,7 +119,7 @@ mod tests {
     use super::*;
     use crate::{
         graph,
-        graph::test_fixtures::{sample_nodes, sample_weighted_edges},
+        small_graph::test_fixtures::{sample_nodes, sample_weighted_edges},
     };
 
     #[test]

@@ -1,9 +1,9 @@
 # solver-graph
 
-`Graph` can be used for operations on `Nodes` and `Edges`. Constructing a `Graph` requires using the `graph!` macro to index `nodes` and `edges`. Use the `shortest_path` operation to find the shortest path between any two `Node`s.
+`SmallGraph` can be used for operations on `Nodes` and `Edges`. Constructing a `SmallGraph` requires using the `graph!` macro to index `nodes` and `edges`. Use the `shortest_path` operation to find the shortest path between any two `Node`s.
 
 ```rust
-use solver_graph::{graph, nodes, edges, shortest_path};
+use solver_graph::small_graph::{graph, nodes, edges, shortest_path};
 
 let nodes = nodes(vec![0, 1, 2]);
 let edges = edges(
