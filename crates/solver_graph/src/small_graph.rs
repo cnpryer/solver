@@ -1,7 +1,25 @@
-use crate::{small_array::SmallArray, Position, Value};
+use crate::{helpers, ops, small_array::SmallArray, Position, Value};
+pub use helpers::{edge, edges, nodes, weighted_edge};
+pub use ops::shortest_path;
 use std::ops::Deref;
 
-/// `Graph`s are compact data structures composed of `Nodes` and `Edges`.
+#[macro_export]
+/// Use `graph![nodes, edges]` to create a `SmallGraph`.
+///
+/// ```rust
+/// use solve_graph::small_graph::{graph, nodes, edges};
+///
+/// let nodes = nodes(vec![0, 1, 2]);
+/// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
+/// let graph = graph![nodes, edges];
+/// ```
+macro_rules! graph {
+    ($nodes:expr, $edges:expr) => {{
+        $crate::small_graph::small_graph($nodes, $edges)
+    }};
+}
+
+/// `SmallGraph`s are compact data structures composed of `Nodes` and `Edges`.
 ///
 ///  ```rust
 /// use solve_graph::{graph, nodes, edges};
@@ -11,29 +29,29 @@ use std::ops::Deref;
 /// let graph = graph![nodes, edges];
 /// ```
 #[derive(Debug)]
-pub(crate) struct Graph<V: Value, P: Position> {
+pub struct SmallGraph<V: Value, P: Position> {
     nodes: Nodes<V>,
     edges: Edges<P, V>,
 }
 
-/// The `Graph` is composed of `Nodes` and `Edges`.
+/// The `SmallGraph` is composed of `Nodes` and `Edges`.
 ///
 /// ```rust
-/// use solver_graph::graph;
+/// use solver_graph::small_graph::graph;
 ///
-/// let graph = graph(nodes(vec![]), edges(vec![]));
+/// let graph = graph![nodes(vec![]), edges(vec![]))];
 /// ```
-pub(crate) fn graph<V: Value, P: Position>(nodes: Nodes<V>, edges: Edges<P, V>) -> Graph<V, P> {
-    Graph { nodes, edges }
+pub fn small_graph<V: Value, P: Position>(nodes: Nodes<V>, edges: Edges<P, V>) -> SmallGraph<V, P> {
+    SmallGraph { nodes, edges }
 }
 
-impl<V: Value, P: Position> Graph<V, P> {
-    /// The `Graph` struct composes the `Nodes` and `Edges` for efficient operations.
+impl<V: Value, P: Position> SmallGraph<V, P> {
+    /// The `SmallGraph` struct composes the `Nodes` and `Edges` for efficient operations.
     ///
     /// ```rust
-    /// use solve_graph::Graph;
+    /// use solve_graph::small_graph::SmallGraph;
     ///
-    /// let graph = Graph::new();
+    /// let graph = SmallGraph::new();
     /// ```
     pub(crate) fn new() -> Self {
         Self {
@@ -42,24 +60,24 @@ impl<V: Value, P: Position> Graph<V, P> {
         }
     }
 
-    /// Get the `Nodes` of the graph.
+    /// Get the `Nodes` of the `SmallGraph`.
     ///
     /// ```rust
-    /// use solve_graph::Graph;
+    /// use solve_graph::small_graph::SmallGraph;
     ///
-    /// let graph = Graph::new();
+    /// let graph = SmallGraph::new();
     /// let nodes = graph.nodes();
     /// ```
     pub(crate) fn nodes(&self) -> &Nodes<V> {
         &self.nodes
     }
 
-    /// Get the `Edges` of the graph.
+    /// Get the `Edges` of the `SmallGraph`.
     ///
     /// ```rust
-    /// use solve_graph::Graph;
+    /// use solve_graph::small_graph::SmallGraph;
     ///
-    /// let graph = Graph::new();
+    /// let graph = SmallGraph::new();
     /// let nodes = graph.edges();
     /// ```
     pub(crate) fn edges(&self) -> &Edges<P, V> {
@@ -67,27 +85,27 @@ impl<V: Value, P: Position> Graph<V, P> {
     }
 }
 
-/// The `Graph` struct composes the `Nodes` and `Edges` for efficient operations.
+/// The `SmallGraph` struct composes the `Nodes` and `Edges` for efficient operations.
 ///
 /// ```rust
-/// use solver_graph::Graph;
+/// use solver_graph::small_graph::SmallGraph;
 ///
-/// let graph = Graph::default();
+/// let graph = SmallGraph::default();
 /// ```
-impl<V: Value, P: Position> Default for Graph<V, P> {
+impl<V: Value, P: Position> Default for SmallGraph<V, P> {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct Nodes<V>(pub(crate) Vec<V>);
+pub struct Nodes<V>(pub(crate) Vec<V>);
 
 impl<V> Nodes<V> {
     /// Get an indexed `Node`.
     ///
     /// ```rust
-    /// use solver_graph::nodes;
+    /// use solver_graph::small_graph::nodes;
     ///
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let first = nodes.get(0).unwrap()
@@ -99,7 +117,7 @@ impl<V> Nodes<V> {
     /// Get the first `Node`.
     ///
     /// ```rust
-    /// use solver_graph::nodes;
+    /// use solver_graph::small_graph::nodes;
     ///
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let first = nodes.first().unwrap()
@@ -111,7 +129,7 @@ impl<V> Nodes<V> {
     /// Get the last `Node`.
     ///
     /// ```rust
-    /// use solver_graph::nodes;
+    /// use solver_graph::small_graph::nodes;
     ///
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let last = nodes.last().unwrap()
@@ -123,7 +141,7 @@ impl<V> Nodes<V> {
     /// Get the length of the `Nodes`.
     ///
     /// ```rust
-    /// use solver_graph::nodes;
+    /// use solver_graph::small_graph::nodes;
     ///
     /// let nodes = nodes(vec![0, 1, 2]);
     /// let last = nodes.last().unwrap()
@@ -134,10 +152,10 @@ impl<V> Nodes<V> {
 }
 
 #[derive(Default, Clone, Debug)]
-pub(crate) struct Edges<P: Position, V: Value>(pub(crate) Vec<SmallArray<Edge<P, V>>>);
+pub struct Edges<P: Position, V: Value>(pub(crate) Vec<SmallArray<Edge<P, V>>>);
 
 #[derive(Default, Clone, Debug)]
-pub(crate) struct Edge<P: Position, V: Value> {
+pub struct Edge<P: Position, V: Value> {
     pub(crate) from: P,
     pub(crate) to: P,
     pub(crate) weights: Option<SmallArray<V>>,
@@ -258,14 +276,14 @@ fn compare_static<P: Position + PartialEq, V: Value + PartialEq>(
 mod tests {
     use super::*;
     use crate::{
-        graph::test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
         helpers::{edge, nodes},
+        small_graph::test_fixtures::{sample_edges, sample_nodes, sample_weighted_edges},
     };
 
     #[test]
     fn test_graph() {
         let (nodes, edges) = (sample_nodes(), sample_edges());
-        let graph = graph(nodes.clone(), edges.clone());
+        let graph = small_graph(nodes.clone(), edges.clone());
         assert_eq!(nodes.first(), graph.nodes().first());
         assert_eq!(edges.first(), graph.edges().first());
     }
@@ -292,7 +310,7 @@ mod tests {
     #[test]
     fn test_weighted_edges() {
         let (nodes, edges) = (sample_nodes(), sample_weighted_edges());
-        let graph = graph(nodes.clone(), edges.clone());
+        let graph = small_graph(nodes.clone(), edges.clone());
         assert_eq!(nodes.last(), graph.nodes().last());
         assert_eq!(edges.last(), graph.edges().last());
     }
@@ -301,8 +319,8 @@ mod tests {
 #[cfg(test)]
 pub(crate) mod test_fixtures {
     use crate::{
-        graph::{Edges, Nodes},
         helpers::{edge, edges, nodes, weighted_edge},
+        small_graph::{Edges, Nodes},
     };
 
     pub(crate) fn sample_nodes() -> Nodes<i32> {

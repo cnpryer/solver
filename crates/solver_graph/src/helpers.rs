@@ -1,26 +1,10 @@
 use crate::{
-    graph::{Edge, Edges, Graph, Nodes},
     small_array::SmallArray,
+    small_graph::{Edge, Edges, Nodes, SmallGraph},
     Position, Value,
 };
 
-#[macro_export]
-/// Use `graph![nodes, edges]` to create a `Graph`.
-///
-/// ```rust
-/// use solve_graph::{graph, nodes, edges};
-///
-/// let nodes = nodes(vec![0, 1, 2]);
-/// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
-/// let graph = graph![nodes, edges];
-/// ```
-macro_rules! graph {
-    ($nodes:expr, $edges:expr) => {{
-        $crate::graph::graph($nodes, $edges)
-    }};
-}
-
-/// Query the neighbors of a `Node` from a `Graph`.
+/// Query the neighbors of a `Node` from a `SmallGraph`.
 ///
 /// ```rust
 /// use solve_graph::{graph, nodes, edges, neighbors};
@@ -30,7 +14,10 @@ macro_rules! graph {
 /// let graph = graph![nodes, edges];
 /// let neighbors = neighbors(&graph, 0).unwrap();
 /// ```
-pub(crate) fn neighbors<V: Value, P: Position>(graph: &Graph<V, P>, index: P) -> Option<Vec<&P>> {
+pub(crate) fn neighbors<V: Value, P: Position>(
+    graph: &SmallGraph<V, P>,
+    index: P,
+) -> Option<Vec<&P>> {
     graph
         .edges()
         .get(index)
@@ -40,22 +27,22 @@ pub(crate) fn neighbors<V: Value, P: Position>(graph: &Graph<V, P>, index: P) ->
 /// The `Nodes` struct composes `Node` data.
 ///
 /// ```rust
-/// use solver_graph::nodes;
+/// use solver_graph::small_graph::nodes;
 ///
 /// let nodes = nodes(vec![]);
 /// ```
-pub(crate) fn nodes<V>(nodes: Vec<V>) -> Nodes<V> {
+pub fn nodes<V>(nodes: Vec<V>) -> Nodes<V> {
     Nodes(nodes)
 }
 
 /// The `Edges` struct composes `Edge` data.
 ///
 /// ```rust
-/// use solver_graph::edges;
+/// use solver_graph::small_graph::edges;
 ///
 /// let edges = edges(vec![]);
 /// ```
-pub(crate) fn edges<P: Position, V: Value>(edges: Vec<Vec<Edge<P, V>>>) -> Edges<P, V> {
+pub fn edges<P: Position, V: Value>(edges: Vec<Vec<Edge<P, V>>>) -> Edges<P, V> {
     // TODO
     Edges(
         edges
@@ -74,11 +61,11 @@ pub(crate) fn edges<P: Position, V: Value>(edges: Vec<Vec<Edge<P, V>>>) -> Edges
 /// The `Edge` struct composes the indexes of a 'from' and 'to' `Node`.
 ///
 /// ```rust
-/// use solver_graph::edge;
+/// use solver_graph::small_graph::edge;
 ///
 /// let edge = edge(0, 1);
 /// ```
-pub(crate) fn edge<P: Position, V: Value>(from: P, to: P) -> Edge<P, V> {
+pub fn edge<P: Position, V: Value>(from: P, to: P) -> Edge<P, V> {
     Edge {
         from,
         to,
@@ -90,11 +77,11 @@ pub(crate) fn edge<P: Position, V: Value>(from: P, to: P) -> Edge<P, V> {
 /// 'weight' data assigned to them.
 ///
 /// ```rust
-/// use solver_graph::weighted_edge;
+/// use solver_graph::small_graph::weighted_edge;
 ///
 /// let edge = weighted_edge(0, 1, vec![100]);
 /// ```
-pub(crate) fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<V>) -> Edge<P, V> {
+pub fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<V>) -> Edge<P, V> {
     // TODO(cnpryer): https://github.com/cnpryer/solver/issues/50
     assert!(weights.is_empty() || weights.len() == 1);
     Edge {
@@ -109,15 +96,19 @@ pub(crate) fn weighted_edge<P: Position, V: Value>(from: P, to: P, weights: Vec<
 }
 
 #[cfg(test)]
+#[macro_use]
 mod tests {
-    use crate::graph::test_fixtures::{sample_edges, sample_nodes};
+    use crate::{
+        graph,
+        small_graph::test_fixtures::{sample_edges, sample_nodes},
+    };
 
     use super::*;
 
     #[test]
     fn test_neighbors() {
         let (nodes, edges) = (sample_nodes(), sample_edges());
-        let graph = graph![nodes, edges.clone()];
+        let graph: _ = graph![nodes, edges.clone()];
         let neighbors = neighbors(&graph, 0).unwrap();
         let ans = edges
             .get(0)
