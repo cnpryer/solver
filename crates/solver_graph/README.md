@@ -1,6 +1,10 @@
 # solver-graph
 
-`SmallGraph` can be used for operations on `Nodes` and `Edges`. Constructing a `SmallGraph` requires using the `graph!` macro to index `nodes` and `edges`. Use the `shortest_path` operation to find the shortest path between any two `Node`s.
+Compact data structures for fast graph-based solutions.
+
+## `SmallGraph`
+
+Use `graph!` to build a `SmallGraph` from `Nodes` and `Edges`.
 
 ```rust
 use solver_graph::small_graph::{graph, nodes, edges, shortest_path};
@@ -14,6 +18,14 @@ let edges = edges(
     ]
 )
 let graph = graph![nodes, edges];
-let path = shortest_path(&graph, 0, 2).unwrap()
-assert_eq!(path, vec![&0, &1, &2]);
 ```
+
+Run `shortest_path` on your graph.
+
+```rust
+assert_eq!(shortest_path(&graph, 0, 2).unwrap(), vec![&0, &1, &2]);
+```
+
+`SmallGraph` is designed for compact graph-based problems where `V` (n vertices) can grow fairly large but `E` (n edges) is or can be limited.
+
+<img src="https://github.com/cnpryer/solver/blob/master/crates/solver_graph/img/small_graph.png" alt="image of a small graph" width="1000" text-align = "center" />
