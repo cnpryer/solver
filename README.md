@@ -6,7 +6,7 @@ A fast solver library for Rust.
 
 # Goals
 
-- Performance
-- Small binaries
-- Solver APIs
-- Playground
+- Fast
+- Compact
+- Expressive
+- Domain-Driven
