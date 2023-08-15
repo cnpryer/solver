@@ -78,7 +78,7 @@ impl<V: Value, P: Position> SmallGraph<V, P> {
     /// use solve_graph::small_graph::SmallGraph;
     ///
     /// let graph = SmallGraph::new();
-    /// let nodes = graph.edges();
+    /// let edges = graph.edges();
     /// ```
     pub(crate) fn edges(&self) -> &Edges<P, V> {
         &self.edges

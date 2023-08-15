@@ -7,7 +7,7 @@ use crate::{
 /// Query the neighbors of a `Node` from a `SmallGraph`.
 ///
 /// ```rust
-/// use solve_graph::{graph, nodes, edges, neighbors};
+/// use solve_graph::small_graph::{graph, nodes, edges, neighbors};
 ///
 /// let nodes = nodes(vec![0, 1, 2]);
 /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
