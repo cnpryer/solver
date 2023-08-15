@@ -1,10 +1,11 @@
+// TODO(cnpryer): TSPSolver with expressive API for designing and executing instructions
 use solver_graph::{
     graph,
     small_graph::{edges, nodes, shortest_path, weighted_edge, Edges},
 };
 
-pub fn resolve() {
-    println!("running small tsp...");
+pub fn shortest_path_example() {
+    println!("searching for shortest path...");
     let nodes = nodes(vec![0, 1, 2, 3]);
     // TODO(cnpryer): Use Indexable or some trait to implement hashing for From<Number>
     let edges: Edges<usize, i32> = edges(vec![

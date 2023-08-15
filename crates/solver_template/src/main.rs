@@ -1,5 +1,5 @@
-pub mod tsp;
+pub mod graph;
 
 fn main() {
-    tsp::resolve();
+    graph::shortest_path_example();
 }
