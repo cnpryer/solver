@@ -205,7 +205,7 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// Get an indexed `Edge`.
     ///
     /// ```rust
-    /// use solver_graph::{edges, edge};
+    /// use solver_graph::small_graph::{edges, edge};
     ///
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.get(0).unwrap()
@@ -217,7 +217,7 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// Get the first `Edge`.
     ///
     /// ```rust
-    /// use solver_graph::{edges, edge};
+    /// use solver_graph::small_graph::{edges, edge};
     ///
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let first = edges.first().unwrap()
@@ -229,7 +229,7 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// Get the last `Edge`.
     ///
     /// ```rust
-    /// use solver_graph::{edges, edge};
+    /// use solver_graph::small_graph::{edges, edge};
     ///
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let last = edges.last().unwrap()
@@ -240,7 +240,7 @@ impl<P: Position, V: Value> Edges<P, V> {
     /// Get the number of edges.
     ///
     /// ```rust
-    /// use solver_graph::nodes;
+    /// use solver_graph::small_graph::nodes;
     ///
     /// let edges = edges(vec![Some(vec![edge(0, 1), edge(0, 2)]), Some(vec![edge(1, 2)]), None]);
     /// let count = edges.len()
