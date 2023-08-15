@@ -118,7 +118,7 @@ pub(crate) fn longest_path<P: Position, V: Value>(
 mod tests {
     use super::*;
     use crate::{
-        graph, small_graph,
+        graph,
         small_graph::test_fixtures::{sample_nodes, sample_weighted_edges},
     };
 
