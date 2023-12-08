@@ -31,4 +31,4 @@ assert_eq!(shortest_path(&graph, 0, 2).unwrap(), vec![&0, &1, &2]);
 
 `SmallGraph` is designed for compact graph-based problems where `V` (N vertices) and `E` (N edges) are or can be limited.
 
-<img src="https://github.com/cnpryer/solver/blob/master/crates/solver_graph/img/small_graph.png" alt="image of a small graph" width="1000" text-align = "center" />
+<img src="https://github.com/cnpryer/solver/blob/master/crates/solver-graph/img/small-graph.png" alt="image of a small graph" width="1000" text-align = "center" />

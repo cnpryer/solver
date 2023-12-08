@@ -1,7 +1,0 @@
-[package]
-name = "solver_template"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-solver_graph = { version = "0.1.0", path = "../solver_graph" }
