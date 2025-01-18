@@ -1,2 +1,10 @@
 [workspace]
 members = ["crates/*"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+
+[workspace.lints.clippy]
+pedantic = "warn"

@@ -1,19 +1,12 @@
 name: spelling
 
-on:
-  push:
-    branches:
-      - "master"
-  pull_request:
-    branches:
-      - "master"
+on: [push]
 
 jobs:
   typos:
-      name: spelling
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
         - uses: crate-ci/typos@master
           with:
             files: .
