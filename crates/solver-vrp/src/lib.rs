@@ -10,6 +10,7 @@
 //   - Focusing on ["date", "date"] start time window inputs for stops.
 //   - Focusing on `u64` [epoch seconds, epoch seconds] as a fixed start and end time for start time window inputs for stops.
 //   - Focusing on default `Number` and `Float` parsing.
+//   - Focusing on inputs without options used.
 
 use model::Model;
 use solution::Solution;
@@ -26,9 +27,19 @@ enum Number {
     Float(Float),
 }
 
+#[derive(Clone, Copy)]
 enum Float {
     F64(f64),
     F32(f32),
+}
+
+impl From<Float> for f64 {
+    fn from(value: Float) -> f64 {
+        match value {
+            Float::F64(it) => it,
+            Float::F32(it) => it as f64,
+        }
+    }
 }
 
 struct Solver {

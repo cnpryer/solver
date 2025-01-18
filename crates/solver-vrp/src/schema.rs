@@ -3,30 +3,32 @@ use std::collections::HashMap;
 use crate::{Float, Id, Number};
 
 pub struct Input {
-    stops: Vec<Stop>,
-    vehicles: Vec<Vehicle>,
-    distance_matrix: Vec<Vec<f64>>,
+    pub stops: Vec<Stop>,
+    pub vehicles: Vec<Vehicle>,
+    pub distance_matrix: Vec<Vec<f64>>,
+    pub options: Option<()>,
 }
 
-struct Stop {
-    id: Id,
-    precedes: Vec<Id>,
-    quantity: HashMap<String, Number>,
-    start_time_windows: [u64; 2],
-    location: Location,
+pub struct Stop {
+    pub id: Id,
+    pub precedes: Vec<Id>,
+    pub quantity: HashMap<String, Number>,
+    pub start_time_windows: [u64; 2],
+    pub location: Location,
 }
 
-struct Location {
-    lat: Float,
-    lon: Float,
+pub struct Location {
+    pub lat: Float,
+    pub lon: Float,
 }
 
-struct Vehicle {
-    capacity: HashMap<String, Number>,
-    speed: Float,
-    initial_stops: Vec<InitialStop>,
+pub struct Vehicle {
+    pub id: Id,
+    pub capacity: HashMap<String, Number>,
+    pub speed: Float,
+    pub initial_stops: Vec<InitialStop>,
 }
 
-struct InitialStop {
-    id: Id,
+pub struct InitialStop {
+    pub id: Id,
 }

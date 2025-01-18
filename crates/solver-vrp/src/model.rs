@@ -15,10 +15,6 @@ impl Model {
         }
     }
 
-    pub fn from_input(input: Input) -> Self {
-        todo!()
-    }
-
     fn stops(&self) -> &Stops {
         &self.stops
     }
@@ -28,11 +24,27 @@ impl Model {
     }
 }
 
+impl From<&Input> for Model {
+    fn from(input: &Input) -> Self {
+        Self {
+            stops: Stops::from(input),
+            vehicles: Vehicles::from(input),
+            plan_units: PlanUnits::from(input),
+        }
+    }
+}
+
 struct PlanUnits(Vec<PlanUnit>);
 
 impl PlanUnits {
     fn new() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl From<&Input> for PlanUnits {
+    fn from(input: &Input) -> Self {
+        todo!()
     }
 }
 
@@ -56,6 +68,26 @@ struct Stops(Vec<Stop>);
 impl Stops {
     fn new() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl From<&Input> for Stops {
+    fn from(input: &Input) -> Self {
+        Self(
+            input
+                .stops
+                .iter()
+                .enumerate()
+                .map(|(index, stop)| Stop {
+                    id: stop.id.clone(),
+                    index,
+                    location: Location {
+                        latitude: stop.location.lat.into(),
+                        longitude: stop.location.lon.into(),
+                    },
+                })
+                .collect(),
+        )
     }
 }
 
@@ -90,6 +122,27 @@ pub struct Vehicles(Vec<Vehicle>);
 impl Vehicles {
     fn new() -> Self {
         Self(Vec::new())
+    }
+}
+
+impl From<&Input> for Vehicles {
+    fn from(input: &Input) -> Self {
+        Self(
+            input
+                .vehicles
+                .iter()
+                .enumerate()
+                .map(|(index, vehicle)| Vehicle {
+                    id: vehicle.id.clone(),
+                    index,
+                    vehicle_type: VehicleType {
+                        id: vehicle.id.clone(),
+                        index: todo!(),
+                    },
+                    stops: todo!(),
+                })
+                .collect(),
+        )
     }
 }
 
