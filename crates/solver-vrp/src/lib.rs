@@ -11,8 +11,8 @@ use solution::Solution;
 mod model;
 mod solution;
 
-pub type Id = String;
-pub type Index = usize;
+type Id = String;
+type Index = usize;
 
 struct Solver {
     model: Model,
