@@ -11,6 +11,7 @@
 //   - Focusing on `u64` [epoch seconds, epoch seconds] as a fixed start and end time for start time window inputs for stops.
 //   - Focusing on default `Number` and `Float` parsing.
 //   - Focusing on inputs without options used.
+//   - Include vehicle type data.
 
 use model::Model;
 use solution::Solution;

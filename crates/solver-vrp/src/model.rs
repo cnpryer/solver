@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{schema::Input, Id, Index};
 
 pub struct Model {
@@ -24,12 +26,53 @@ impl Model {
     }
 }
 
-impl From<&Input> for Model {
-    fn from(input: &Input) -> Self {
+impl From<Input> for Model {
+    fn from(input: Input) -> Self {
+        let mut stops = Stops(Vec::with_capacity(input.stops.len()));
+        let mut stop_map = HashMap::with_capacity(input.stops.len());
+
+        for (index, stop) in input.stops.iter().enumerate() {
+            stops.push(Stop {
+                id: stop.id.clone(),
+                index,
+                location: Location {
+                    latitude: stop.location.lat.into(),
+                    longitude: stop.location.lon.into(),
+                },
+            });
+            stop_map.insert(&stop.id, index);
+        }
+
+        let vehicles = Vehicles(
+            input
+                .vehicles
+                .iter()
+                .enumerate()
+                .map(|(index, vehicle)| Vehicle {
+                    id: vehicle.id.clone(),
+                    index,
+                    stops: vehicle
+                        .initial_stops
+                        .iter()
+                        .map(|stop| {
+                            stops
+                                .get(
+                                    *stop_map
+                                        .get(&stop.id)
+                                        .expect("initial stop not found in stops"),
+                                )
+                                .unwrap()
+                                .clone()
+                        })
+                        .collect(),
+                })
+                .collect(),
+        );
+
         Self {
-            stops: Stops::from(input),
-            vehicles: Vehicles::from(input),
-            plan_units: PlanUnits::from(input),
+            stops,
+            plan_units: todo!(),
+            vehicles,
         }
     }
 }
@@ -39,12 +82,6 @@ struct PlanUnits(Vec<PlanUnit>);
 impl PlanUnits {
     fn new() -> Self {
         Self(Vec::new())
-    }
-}
-
-impl From<&Input> for PlanUnits {
-    fn from(input: &Input) -> Self {
-        todo!()
     }
 }
 
@@ -69,28 +106,17 @@ impl Stops {
     fn new() -> Self {
         Self(Vec::new())
     }
-}
 
-impl From<&Input> for Stops {
-    fn from(input: &Input) -> Self {
-        Self(
-            input
-                .stops
-                .iter()
-                .enumerate()
-                .map(|(index, stop)| Stop {
-                    id: stop.id.clone(),
-                    index,
-                    location: Location {
-                        latitude: stop.location.lat.into(),
-                        longitude: stop.location.lon.into(),
-                    },
-                })
-                .collect(),
-        )
+    fn get(&self, index: Index) -> Option<&Stop> {
+        self.0.get(index)
+    }
+
+    fn push(&mut self, stop: Stop) {
+        self.0.push(stop);
     }
 }
 
+#[derive(Clone)]
 pub struct Stop {
     id: Id,
     index: Index,
@@ -125,31 +151,9 @@ impl Vehicles {
     }
 }
 
-impl From<&Input> for Vehicles {
-    fn from(input: &Input) -> Self {
-        Self(
-            input
-                .vehicles
-                .iter()
-                .enumerate()
-                .map(|(index, vehicle)| Vehicle {
-                    id: vehicle.id.clone(),
-                    index,
-                    vehicle_type: VehicleType {
-                        id: vehicle.id.clone(),
-                        index: todo!(),
-                    },
-                    stops: todo!(),
-                })
-                .collect(),
-        )
-    }
-}
-
 struct Vehicle {
     id: Id,
     index: Index,
-    vehicle_type: VehicleType,
     stops: Vec<Stop>,
 }
 
@@ -160,10 +164,6 @@ impl Vehicle {
 
     fn index(&self) -> Index {
         self.index
-    }
-
-    fn vehicle_type(&self) -> &VehicleType {
-        &self.vehicle_type
     }
 
     fn stops(&self) -> &Vec<Stop> {

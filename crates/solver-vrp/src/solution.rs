@@ -47,10 +47,11 @@ struct Vehicle {
 }
 
 struct PlanUnitsCollection {
-    // A map of `model::PlanUnit`'s `Index` to `PlanUnit`'s `Index` in each of the `PlanUnits` they are contained in.
-    indices: HashMap<Index, Index>,
+    indices: HashMap<ModelIndex, Index>,
     plan_units: PlanUnits,
 }
+
+type ModelIndex = Index;
 
 impl PlanUnitsCollection {
     fn plan_unit_index(&self, model_plan_unit: &ModelPlanUnit) -> Option<&Index> {
