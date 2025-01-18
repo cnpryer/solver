@@ -1,4 +1,4 @@
-use crate::{Id, Index};
+use crate::{schema::Input, Id, Index};
 
 pub struct Model {
     stops: Stops,
@@ -13,6 +13,10 @@ impl Model {
             vehicles: Vehicles::new(),
             plan_units: PlanUnits::new(),
         }
+    }
+
+    pub fn from_input(input: Input) -> Self {
+        todo!()
     }
 
     fn stops(&self) -> &Stops {
