@@ -1,7 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::{schema::Input, types::Float};
-use types::{Id, Index};
+use crate::{Id, Index, schema::Input};
 
 pub struct Model {
     stops: Stops,
@@ -178,8 +177,8 @@ impl Stop {
 
 #[derive(Clone, Copy)]
 struct Location {
-    latitude: Float,
-    longitude: Float,
+    latitude: f64,
+    longitude: f64,
 }
 
 pub struct Vehicles(Vec<Vehicle>);
