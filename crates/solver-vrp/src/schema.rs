@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use crate::{Float, Id, Number};
+use types::{Float, Id, Number};
 
 pub struct Input {
     pub stops: Vec<Stop>,
     pub vehicles: Vec<Vehicle>,
-    pub distance_matrix: Vec<Vec<f64>>,
+    pub distance_matrix: Vec<Vec<Number>>,
     pub options: Option<()>,
 }
 

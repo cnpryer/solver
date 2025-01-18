@@ -1,6 +1,7 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
-use crate::{schema::Input, Id, Index};
+use crate::{schema::Input, types::Float};
+use types::{Id, Index};
 
 pub struct Model {
     stops: Stops,
@@ -28,19 +29,53 @@ impl Model {
 
 impl From<Input> for Model {
     fn from(input: Input) -> Self {
-        let mut stops = Stops(Vec::with_capacity(input.stops.len()));
-        let mut stop_map = HashMap::with_capacity(input.stops.len());
+        let stop_count = input.stops.len();
+        let mut stops_vec = Vec::with_capacity(stop_count);
+        let mut stop_map = HashMap::with_capacity(stop_count);
 
         for (index, stop) in input.stops.iter().enumerate() {
-            stops.push(Stop {
+            let model_stop = Stop {
                 id: stop.id.clone(),
                 index,
                 location: Location {
-                    latitude: stop.location.lat.into(),
-                    longitude: stop.location.lon.into(),
+                    latitude: stop.location.lat,
+                    longitude: stop.location.lon,
                 },
-            });
-            stop_map.insert(&stop.id, index);
+            };
+
+            stop_map.insert(stop.id.as_str(), index);
+            stops_vec.push(model_stop);
+        }
+
+        let mut plan_units = PlanUnits::new();
+        let mut plan_unit_set = HashSet::with_capacity(stop_count);
+
+        for (index, stop) in input.stops.iter().enumerate() {
+            if plan_unit_set.contains(&index) {
+                continue;
+            }
+
+            let mut plan_unit = PlanUnit {
+                index: plan_units.len(),
+                stops: vec![index],
+            };
+
+            // Currently only one pickup and one delivery stop is supported.
+            if stop.precedes.len() > 1 {
+                panic!("stop {} has too many precedes", stop.id);
+            }
+
+            if let Some(id) = stop.precedes.first() {
+                let next_index = *stop_map.get(id.as_str()).expect("stop precedes not found");
+                if plan_unit_set.contains(&next_index) {
+                    panic!("stop {} is already part of a plan unit", id);
+                }
+                plan_unit.stops.push(next_index);
+                plan_unit_set.insert(next_index);
+            }
+
+            plan_unit_set.insert(index);
+            plan_units.push(plan_unit);
         }
 
         let vehicles = Vehicles(
@@ -55,14 +90,10 @@ impl From<Input> for Model {
                         .initial_stops
                         .iter()
                         .map(|stop| {
-                            stops
-                                .get(
-                                    *stop_map
-                                        .get(&stop.id)
-                                        .expect("initial stop not found in stops"),
-                                )
-                                .unwrap()
-                                .clone()
+                            let stop_index = *stop_map
+                                .get(stop.id.as_str())
+                                .expect("initial stop not found in stops");
+                            stops_vec[stop_index].clone()
                         })
                         .collect(),
                 })
@@ -70,8 +101,8 @@ impl From<Input> for Model {
         );
 
         Self {
-            stops,
-            plan_units: todo!(),
+            stops: Stops(stops_vec),
+            plan_units,
             vehicles,
         }
     }
@@ -83,11 +114,19 @@ impl PlanUnits {
     fn new() -> Self {
         Self(Vec::new())
     }
+
+    fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    fn push(&mut self, plan_unit: PlanUnit) {
+        self.0.push(plan_unit);
+    }
 }
 
 pub struct PlanUnit {
     index: Index,
-    stops: Vec<Stop>,
+    stops: Vec<Index>,
 }
 
 impl PlanUnit {
@@ -95,7 +134,7 @@ impl PlanUnit {
         &self.index
     }
 
-    fn stops(&self) -> &Vec<Stop> {
+    fn stops(&self) -> &Vec<Index> {
         &self.stops
     }
 }
@@ -139,8 +178,8 @@ impl Stop {
 
 #[derive(Clone, Copy)]
 struct Location {
-    latitude: f64,
-    longitude: f64,
+    latitude: Float,
+    longitude: Float,
 }
 
 pub struct Vehicles(Vec<Vehicle>);

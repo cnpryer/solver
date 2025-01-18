@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::Index;
 use model::{PlanUnit as ModelPlanUnit, Stop as ModelStop};
+use types::Index;
 
 pub struct Solution {
     vehicles: Vehicles,
