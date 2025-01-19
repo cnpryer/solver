@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    vec::IntoIter,
+};
 
 use crate::{Id, Index, schema::Input};
 
@@ -21,7 +24,7 @@ impl Model {
         &self.stops
     }
 
-    fn vehicles(&self) -> &Vehicles {
+    pub fn vehicles(&self) -> &Vehicles {
         &self.vehicles
     }
 }
@@ -60,11 +63,15 @@ impl From<Input> for Model {
             };
 
             // Currently only one pickup and one delivery stop is supported.
-            if stop.precedes.len() > 1 {
+            if stop
+                .precedes
+                .as_ref()
+                .is_some_and(|precedes| precedes.len() > 1)
+            {
                 panic!("stop {} has too many precedes", stop.id);
             }
 
-            if let Some(id) = stop.precedes.first() {
+            if let Some(id) = stop.precedes.as_ref().and_then(|precedes| precedes.first()) {
                 let next_index = *stop_map.get(id.as_str()).expect("stop precedes not found");
                 if plan_unit_set.contains(&next_index) {
                     panic!("stop {} is already part of a plan unit", id);
@@ -87,14 +94,18 @@ impl From<Input> for Model {
                     index,
                     stops: vehicle
                         .initial_stops
-                        .iter()
-                        .map(|stop| {
-                            let stop_index = *stop_map
-                                .get(stop.id.as_str())
-                                .expect("initial stop not found in stops");
-                            stops_vec[stop_index].clone()
+                        .as_ref()
+                        .map(|it| {
+                            it.iter()
+                                .map(|stop| {
+                                    let stop_index = *stop_map
+                                        .get(stop.id.as_str())
+                                        .expect("initial stop not found in stops");
+                                    stops_vec[stop_index].clone()
+                                })
+                                .collect()
                         })
-                        .collect(),
+                        .unwrap_or(Vec::new()),
                 })
                 .collect(),
         );
@@ -187,9 +198,14 @@ impl Vehicles {
     fn new() -> Self {
         Self(Vec::new())
     }
+
+    // TODO
+    pub fn iter(&self) -> impl Iterator<Item = &Vehicle> {
+        self.0.iter()
+    }
 }
 
-struct Vehicle {
+pub struct Vehicle {
     id: Id,
     index: Index,
     stops: Vec<Stop>,
@@ -200,16 +216,20 @@ impl Vehicle {
         &self.id
     }
 
-    fn index(&self) -> Index {
+    pub fn index(&self) -> Index {
         self.index
     }
 
-    fn stops(&self) -> &Vec<Stop> {
+    pub fn stops(&self) -> &Vec<Stop> {
         &self.stops
     }
 
     fn push_stop(&mut self, stop: Stop) {
         self.stops.push(stop);
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.stops.is_empty()
     }
 }
 

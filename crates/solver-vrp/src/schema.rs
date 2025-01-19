@@ -11,7 +11,7 @@ pub struct Input {
 
 pub struct Stop {
     pub id: Id,
-    pub precedes: Vec<Id>,
+    pub precedes: Option<Vec<Id>>,
     pub quantity: HashMap<String, f64>,
     pub start_time_windows: [u64; 2],
     pub location: Location,
@@ -26,7 +26,7 @@ pub struct Vehicle {
     pub id: Id,
     pub capacity: HashMap<String, f64>,
     pub speed: f64,
-    pub initial_stops: Vec<InitialStop>,
+    pub initial_stops: Option<Vec<InitialStop>>,
 }
 
 pub struct InitialStop {

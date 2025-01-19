@@ -28,17 +28,80 @@ struct Solver {
 }
 
 impl Solver {
-    fn new() -> Self {
-        Self {
-            model: Model::new(),
-        }
+    fn new(model: Model) -> Self {
+        Self { model }
     }
 
-    fn solve(&self) -> Solution {
-        todo!()
+    fn solve(&self, options: Options) -> Solution {
+        let initial_solution = Solution::new(&self.model);
+
+        for _ in 0..options.iterations {
+            unimplemented!()
+        }
+
+        initial_solution
     }
 
     fn model(&self) -> &Model {
         &self.model
     }
+}
+
+struct Options {
+    iterations: u64,
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self { iterations: 10 }
+    }
+}
+
+#[test]
+fn test_solver() {
+    use schema::{
+        InitialStop, Input, Location as InputLocation, Stop as InputStop, Vehicle as InputVehicle,
+    };
+    use std::collections::HashMap;
+
+    let model = Model::from(Input {
+        stops: vec![
+            InputStop {
+                id: String::from("pickup"),
+                precedes: Some(vec![String::from("delivery")]),
+                quantity: HashMap::from([(String::from("count"), -1.)]),
+                start_time_windows: [0; 2],
+                location: InputLocation { lat: 0., lon: 0. },
+            },
+            InputStop {
+                id: String::from("delivery"),
+                precedes: None,
+                quantity: HashMap::from([(String::from("count"), 1.)]),
+                start_time_windows: [0; 2],
+                location: InputLocation { lat: 0., lon: 0. },
+            },
+        ],
+        vehicles: vec![InputVehicle {
+            id: String::from("vehicle"),
+            capacity: HashMap::from([(String::from("count"), 1.)]),
+            speed: 0.,
+            initial_stops: Some(vec![
+                InitialStop {
+                    id: String::from("pickup"),
+                },
+                InitialStop {
+                    id: String::from("pickup"),
+                },
+            ]),
+        }],
+        distance_matrix: vec![vec![0., 1.], vec![1., 0.]],
+        options: None,
+    });
+
+    let solution = Solver::new(model).solve(Options {
+        iterations: 0,
+        ..Default::default()
+    });
+
+    assert_eq!(solution.value(), 0.)
 }
