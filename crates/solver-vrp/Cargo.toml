@@ -1,7 +1,9 @@
 [package]
 name = "solver-vrp"
-version = "0.1.0"
+version = "0.0.0"
+description = "VRP Solver"
 edition.workspace = true
 rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
