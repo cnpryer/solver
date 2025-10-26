@@ -379,6 +379,7 @@ impl CompatibilityAttribute {
         CompatibilityAttribute { key, value }
     }
 }
+
 #[derive(Default)]
 struct DirectedAcyclicGraph {
     edges: Vec<Vec<usize>>,
