@@ -82,6 +82,7 @@ pub struct ModelData {
     stops: Stops,
     vehicles: Vehicles,
     distance_matrix: Option<DistanceMatrix>,
+    graph: DirectedAcyclicGraph,
 }
 
 #[derive(Default)]
@@ -378,6 +379,51 @@ impl CompatibilityAttribute {
         CompatibilityAttribute { key, value }
     }
 }
+#[derive(Default)]
+struct DirectedAcyclicGraph {
+    edges: Vec<Vec<usize>>,
+    outbound_arcs: Vec<Vec<Arc>>,
+    arcs: Vec<Arc>,
+}
+
+impl DirectedAcyclicGraph {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_capacity(node_count: usize) -> Self {
+        Self {
+            edges: vec![Vec::new(); node_count],
+            outbound_arcs: vec![Vec::new(); node_count],
+            arcs: Vec::new(),
+        }
+    }
+
+    pub fn add_arc(&mut self, from: usize, to: usize) {
+        let arc = Arc { from, to };
+        self.edges[from].push(to);
+        self.outbound_arcs[from].push(arc.clone());
+        self.arcs.push(arc);
+    }
+
+    pub fn outbound(&self, node: usize) -> &[Arc] {
+        &self.outbound_arcs[node]
+    }
+
+    pub fn arcs(&self) -> &[Arc] {
+        &self.arcs
+    }
+
+    pub fn edges(&self) -> &Vec<Vec<usize>> {
+        &self.edges
+    }
+}
+
+#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+struct Arc {
+    from: usize,
+    to: usize,
+}
 
 #[cfg(test)]
 mod tests {
@@ -471,5 +517,17 @@ mod tests {
             model.expressions().first().map(|e| e.name()),
             Some(String::from("Distance Expression (Meters)"))
         );
+    }
+
+    #[test]
+    fn test_dag() {
+        let mut dag = DirectedAcyclicGraph::with_capacity(3);
+        dag.add_arc(0, 1);
+        dag.add_arc(1, 2);
+        assert_eq!(dag.edges().len(), 3);
+        assert_eq!(dag.edges()[0], vec![1]);
+        assert_eq!(dag.edges()[1], vec![2]);
+        assert_eq!(dag.edges()[2], vec![]);
+        assert_eq!(dag.arcs().len(), 2);
     }
 }
