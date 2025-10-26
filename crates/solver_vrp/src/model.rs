@@ -415,7 +415,7 @@ impl DirectedAcyclicGraph {
         &self.arcs
     }
 
-    pub fn edges(&self) -> &Vec<Vec<usize>> {
+    pub fn edges(&self) -> &[Vec<usize>] {
         &self.edges
     }
 }
