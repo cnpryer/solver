@@ -1,6 +1,6 @@
 # solver
 
-A work-in-progress solver repository for Rust. 
+An experimental solver repository for Rust. 
 
 # Goals
 
