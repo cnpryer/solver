@@ -1,0 +1,11 @@
+[package]
+name = "solver_vrp"
+version = "0.0.0"
+edition = "2024"
+description = "Vehicle routing solver crate."
+license.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true
