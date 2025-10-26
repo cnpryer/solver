@@ -4,7 +4,7 @@ use crate::solution::Solution;
 pub trait Operator {
     /// Name of the operator.
     fn name(&self) -> String;
-    /// Executes the operator, modifying the model and solution.
+    /// Executes the operator to generate a new solution.
     fn execute(&self, model: &Model, solution: &Solution) -> Option<Solution>;
 }
 
@@ -13,15 +13,41 @@ pub struct Solver {
     operators: Operators,
     options: SolverOptions,
     solution: Option<Solution>,
-    iteration_count: usize,
+    pub iteration_count: usize,
+}
+
+impl Solver {
+    #[must_use]
+    pub fn model(&self) -> &Model {
+        &self.model
+    }
+
+    #[must_use]
+    pub fn operators(&self) -> &Operators {
+        &self.operators
+    }
+
+    #[must_use]
+    pub fn options(&self) -> &SolverOptions {
+        &self.options
+    }
+
+    #[must_use]
+    pub fn solution(&self) -> Option<&Solution> {
+        self.solution.as_ref()
+    }
 }
 
 #[derive(Default)]
-struct Operators(Vec<Box<dyn Operator>>);
+pub struct Operators(Vec<Box<dyn Operator>>);
 
 impl Operators {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
     }
 
     pub fn first(&self) -> Option<&dyn Operator> {
@@ -38,13 +64,6 @@ impl Operators {
 
     pub fn iter(&self) -> std::slice::Iter<'_, Box<dyn Operator>> {
         self.0.iter()
-    }
-}
-
-impl std::ops::Deref for Operators {
-    type Target = [Box<dyn Operator>];
-    fn deref(&self) -> &Self::Target {
-        &self.0
     }
 }
 
@@ -256,7 +275,7 @@ mod tests {
             .build();
 
         assert_eq!(solver.options.max_iterations, 10);
-        assert_eq!(solver.operators.len(), 6);
+        assert_eq!(solver.operators().len(), 6);
         assert_eq!(solver.iteration_count, 0);
         assert!(solver.solution.is_none());
         assert_eq!(solver.model.objectives().len(), 1);
