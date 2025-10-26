@@ -6,6 +6,7 @@ description = "Vehicle routing solver crate."
 license.workspace = true
 
 [dependencies]
+rand = "0.9.2"
 
 [lints]
 workspace = true

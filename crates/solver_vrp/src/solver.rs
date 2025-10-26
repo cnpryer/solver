@@ -1,5 +1,6 @@
 use crate::model::Model;
 use crate::solution::Solution;
+use rand::prelude::{Rng, SeedableRng, StdRng};
 
 pub trait Operator {
     /// Name of the operator.
@@ -13,6 +14,7 @@ pub struct Solver {
     operators: Operators,
     options: SolverOptions,
     solution: Option<Solution>,
+    random: Random,
     pub iteration_count: usize,
 }
 
@@ -124,6 +126,7 @@ impl SolverBuilder {
                 operators: self.operators,
                 options: self.options,
                 solution: None,
+                random: Random::new(),
                 iteration_count: 0,
             },
         }
@@ -179,14 +182,14 @@ impl Default for SolverOptions {
 
 pub enum RepairOperator {
     Random(OperatorParameters),
-    Greedy(OperatorParameters),
+    Nearest(OperatorParameters),
 }
 
 impl Operator for RepairOperator {
     fn name(&self) -> String {
         match self {
             Self::Random(_) => "Random Repair Operator".to_string(),
-            Self::Greedy(_) => "Greedy Repair Operator".to_string(),
+            Self::Nearest(_) => "Nearest Repair Operator".to_string(),
         }
     }
 
@@ -243,6 +246,45 @@ impl OperatorParameters {
     }
 }
 
+struct Random {
+    rng: StdRng,
+}
+
+impl Random {
+    fn new() -> Self {
+        use std::time::{SystemTime, UNIX_EPOCH};
+        let seed = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        Self {
+            rng: StdRng::seed_from_u64(seed),
+        }
+    }
+
+    fn seed(seed: u64) -> Self {
+        Self {
+            rng: StdRng::seed_from_u64(seed),
+        }
+    }
+
+    fn gen_u32(&mut self) -> u32 {
+        self.rng.random()
+    }
+
+    fn gen_f64(&mut self) -> f64 {
+        self.rng.random()
+    }
+
+    fn gen_range_u32(&mut self, low: u32, high: u32) -> u32 {
+        self.rng.random_range(low..high)
+    }
+
+    fn gen_range_f64(&mut self, low: f64, high: f64) -> f64 {
+        self.rng.random_range(low..high)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
@@ -265,7 +307,7 @@ mod tests {
 
         let solver = SolverBuilder::new()
             .operator(RepairOperator::Random(OperatorParameters::new(1.0, 0.5)))
-            .operator(RepairOperator::Greedy(OperatorParameters::new(1.0, 0.5)))
+            .operator(RepairOperator::Nearest(OperatorParameters::new(1.0, 0.5)))
             .operator(DestroyOperator::Random(OperatorParameters::new(2.0, 0.3)))
             .operator(DestroyOperator::Worst(OperatorParameters::new(2.0, 0.3)))
             .operator(ResetOperator::Partial(OperatorParameters::new(3.0, 0.2)))
@@ -280,5 +322,18 @@ mod tests {
         assert!(solver.solution.is_none());
         assert_eq!(solver.model.objectives().len(), 1);
         assert_eq!(solver.model.constraints().len(), 2);
+    }
+
+    #[test]
+    fn test_seeded_random() {
+        let mut rng1 = Random::seed(42);
+        let mut rng2 = Random::seed(42);
+
+        for _ in 0..100 {
+            assert_eq!(rng1.gen_u32(), rng2.gen_u32());
+            assert_eq!(rng1.gen_f64(), rng2.gen_f64());
+            assert_eq!(rng1.gen_range_u32(0, 100), rng2.gen_range_u32(0, 100));
+            assert_eq!(rng1.gen_range_f64(0.0, 1.0), rng2.gen_range_f64(0.0, 1.0));
+        }
     }
 }
