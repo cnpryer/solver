@@ -186,8 +186,8 @@ pub enum RepairOperator {
 impl Operator for RepairOperator {
     fn name(&self) -> String {
         match self {
-            Self::Random(_) => "Random Repair Operator".to_string(),
-            Self::Nearest(_) => "Nearest Repair Operator".to_string(),
+            Self::Random(_) => String::from("Random Repair Operator"),
+            Self::Nearest(_) => String::from("Nearest Repair Operator"),
         }
     }
 
@@ -204,8 +204,8 @@ pub enum DestroyOperator {
 impl Operator for DestroyOperator {
     fn name(&self) -> String {
         match self {
-            Self::Random(_) => "Random Destroy Operator".to_string(),
-            Self::Nearest(_) => "Nearest Destroy Operator".to_string(),
+            Self::Random(_) => String::from("Random Destroy Operator"),
+            Self::Nearest(_) => String::from("Nearest Destroy Operator"),
         }
     }
 
@@ -222,8 +222,8 @@ pub enum ResetOperator {
 impl Operator for ResetOperator {
     fn name(&self) -> String {
         match self {
-            Self::Full(_) => "Full Reset Operator".to_string(),
-            Self::Partial(_) => "Partial Reset Operator".to_string(),
+            Self::Full(_) => String::from("Full Reset Operator"),
+            Self::Partial(_) => String::from("Partial Reset Operator"),
         }
     }
 
