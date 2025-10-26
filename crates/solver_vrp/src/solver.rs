@@ -38,6 +38,29 @@ impl Solver {
     pub fn solution(&self) -> Option<&Solution> {
         self.solution.as_ref()
     }
+
+    #[must_use]
+    pub fn solve(mut self) -> Option<Solution> {
+        while self.options.max_iterations > self.iteration_count {
+            self.execute_operators();
+            self.increment_iteration();
+        }
+        self.solution
+    }
+
+    fn increment_iteration(&mut self) {
+        self.iteration_count += 1;
+    }
+
+    fn execute_operators(&mut self) {
+        let mut solution = self.solution.take().unwrap_or_default();
+        for op in self.operators.iter() {
+            if let Some(s) = op.execute(&self.model, &solution) {
+                solution = s.best(solution);
+            }
+        }
+        self.solution = Some(solution);
+    }
 }
 
 #[derive(Default)]
@@ -66,31 +89,6 @@ impl Operators {
 
     pub fn iter(&self) -> std::slice::Iter<'_, Box<dyn Operator>> {
         self.0.iter()
-    }
-}
-
-impl Solver {
-    #[must_use]
-    pub fn solve(mut self) -> Option<Solution> {
-        while self.options.max_iterations > self.iteration_count {
-            self.execute_operators();
-            self.increment_iteration();
-        }
-        self.solution
-    }
-
-    fn increment_iteration(&mut self) {
-        self.iteration_count += 1;
-    }
-
-    fn execute_operators(&mut self) {
-        let mut solution = self.solution.take().unwrap_or_default();
-        for op in self.operators.iter() {
-            if let Some(s) = op.execute(&self.model, &solution) {
-                solution = s.best(solution);
-            }
-        }
-        self.solution = Some(solution);
     }
 }
 
