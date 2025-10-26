@@ -1,6 +1,7 @@
 use crate::model::Model;
 use crate::solution::Solution;
 use rand::prelude::{Rng, SeedableRng, StdRng};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub trait Operator {
     /// Name of the operator.
@@ -250,14 +251,12 @@ struct Random {
 
 impl Random {
     fn new() -> Self {
-        use std::time::{SystemTime, UNIX_EPOCH};
-        let seed = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        Self {
-            rng: StdRng::seed_from_u64(seed),
-        }
+        Self::seed(
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_secs(),
+        )
     }
 
     fn seed(seed: u64) -> Self {
