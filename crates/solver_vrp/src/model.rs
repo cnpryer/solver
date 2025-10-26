@@ -12,8 +12,6 @@ pub trait Constraint {
     fn name(&self) -> String;
     /// Checks if the plan violates the constraint.
     fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool;
-    /// Determines when to apply the constraint.
-    fn when(&self) -> usize;
     /// Indicates if the constraint is temporal.
     fn is_temporal(&self) -> bool {
         false
@@ -281,10 +279,6 @@ impl Constraint for VehicleConstraint {
     fn is_feasible(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> bool {
         true
     }
-
-    fn when(&self) -> usize {
-        0
-    }
 }
 
 pub enum DistanceExpression {
@@ -449,10 +443,6 @@ mod tests {
 
         fn is_feasible(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> bool {
             true
-        }
-
-        fn when(&self) -> usize {
-            0
         }
     }
 

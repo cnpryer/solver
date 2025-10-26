@@ -36,11 +36,6 @@
 //!        true
 //!     }
 //!
-//!     // Returns the priority of the constraint.
-//!     fn when(&self) -> usize {
-//!         0
-//!     }
-//!
 //!     // Returns true if the constraint is temporal.
 //!     fn is_temporal(&self) -> bool {
 //!         false
