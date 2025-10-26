@@ -20,6 +20,18 @@ pub struct Solver {
 struct Operators(Vec<Box<dyn Operator>>);
 
 impl Operators {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn first(&self) -> Option<&dyn Operator> {
+        self.0.first().map(AsRef::as_ref)
+    }
+
+    pub fn get(&self, index: usize) -> Option<&dyn Operator> {
+        self.0.get(index).map(AsRef::as_ref)
+    }
+
     pub fn push(&mut self, operator: Box<dyn Operator>) {
         self.0.push(operator);
     }
@@ -43,7 +55,7 @@ impl Solver {
             self.execute_operators();
             self.increment_iteration();
         }
-        self.best_solution.clone()
+        self.best_solution
     }
 
     fn increment_iteration(&mut self) {

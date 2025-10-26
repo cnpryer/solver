@@ -75,7 +75,7 @@
 //!     }
 //! }
 //!
-//! fn main() {
+//! fn run() {
 //!     // Build the model with custom components.
 //!     let model = ModelBuilder::new()
 //!         .objective(CustomObjective)

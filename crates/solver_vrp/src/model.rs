@@ -42,13 +42,18 @@ impl Model {
     }
 
     #[must_use]
-    pub fn stops(&self) -> &Vec<Stop> {
-        &self.data.stops.0
+    pub fn data(&self) -> &ModelData {
+        &self.data
     }
 
     #[must_use]
-    pub fn vehicles(&self) -> &Vec<Vehicle> {
-        &self.data.vehicles.0
+    pub fn stops(&self) -> &Stops {
+        &self.data.stops
+    }
+
+    #[must_use]
+    pub fn vehicles(&self) -> &Vehicles {
+        &self.data.vehicles
     }
 
     #[must_use]
@@ -57,63 +62,76 @@ impl Model {
     }
 
     #[must_use]
-    pub fn objectives(&self) -> &Vec<Box<dyn Objective>> {
-        &self.objectives.0
+    pub fn objectives(&self) -> &Objectives {
+        &self.objectives
     }
 
     #[must_use]
-    pub fn constraints(&self) -> &Vec<Box<dyn Constraint>> {
-        &self.constraints.0
+    pub fn constraints(&self) -> &Constraints {
+        &self.constraints
     }
 
     #[must_use]
-    pub fn expressions(&self) -> &Vec<Box<dyn Expression>> {
-        &self.expressions.0
+    pub fn expressions(&self) -> &Expressions {
+        &self.expressions
     }
 }
 
 #[derive(Default)]
-struct ModelData {
+pub struct ModelData {
     stops: Stops,
     vehicles: Vehicles,
     distance_matrix: Option<DistanceMatrix>,
 }
 
 #[derive(Default)]
-struct Stops(Vec<Stop>);
+pub struct Stops(Vec<Stop>);
 
 impl Stops {
     pub fn new() -> Self {
         Self::default()
     }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }
+
     pub fn push(&mut self, stop: Stop) {
         self.0.push(stop);
     }
 }
 
 #[derive(Default)]
-struct Vehicles(Vec<Vehicle>);
+pub struct Vehicles(Vec<Vehicle>);
 
 impl Vehicles {
     pub fn new() -> Self {
         Self::default()
     }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }
+
     pub fn push(&mut self, vehicle: Vehicle) {
         self.0.push(vehicle);
     }
 }
 
 #[derive(Default)]
-struct Objectives(Vec<Box<dyn Objective>>);
+pub struct Objectives(Vec<Box<dyn Objective>>);
+
 impl Objectives {
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn get(&self, index: usize) -> Option<&dyn Objective> {
+        self.0.get(index).map(AsRef::as_ref)
+    }
+
+    pub fn first(&self) -> Option<&dyn Objective> {
+        self.0.first().map(AsRef::as_ref)
     }
 
     pub fn push(&mut self, objective: Box<dyn Objective>) {
@@ -122,10 +140,19 @@ impl Objectives {
 }
 
 #[derive(Default)]
-struct Constraints(Vec<Box<dyn Constraint>>);
+pub struct Constraints(Vec<Box<dyn Constraint>>);
+
 impl Constraints {
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn get(&self, index: usize) -> Option<&dyn Constraint> {
+        self.0.get(index).map(AsRef::as_ref)
+    }
+
+    pub fn first(&self) -> Option<&dyn Constraint> {
+        self.0.first().map(AsRef::as_ref)
     }
 
     pub fn push(&mut self, constraint: Box<dyn Constraint>) {
@@ -134,10 +161,19 @@ impl Constraints {
 }
 
 #[derive(Default)]
-struct Expressions(Vec<Box<dyn Expression>>);
+pub struct Expressions(Vec<Box<dyn Expression>>);
+
 impl Expressions {
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn get(&self, index: usize) -> Option<&dyn Expression> {
+        self.0.get(index).map(AsRef::as_ref)
+    }
+
+    pub fn first(&self) -> Option<&dyn Expression> {
+        self.0.first().map(AsRef::as_ref)
     }
 
     pub fn push(&mut self, expression: Box<dyn Expression>) {
@@ -411,18 +447,29 @@ mod tests {
         assert_eq!(model.constraints().len(), 3);
         assert_eq!(model.expressions().len(), 2);
 
-        assert_eq!(model.objectives()[0].name(), "Unplanned Objective");
-        assert_eq!(model.constraints()[0].name(), "Vehicle Capacity Constraint");
         assert_eq!(
-            model.constraints()[1].name(),
-            "Vehicle Compatibility Constraint"
+            model.objectives().first().map(|o| o.name()),
+            Some(String::from("Unplanned Objective"))
         );
-
-        assert_eq!(model.objectives()[1].name(), "Test Objective");
-        assert_eq!(model.constraints()[2].name(), "Test Constraint");
         assert_eq!(
-            model.expressions()[0].name(),
-            "Distance Expression (Meters)"
+            model.objectives().get(1).map(|o| o.name()),
+            Some(String::from("Test Objective"))
+        );
+        assert_eq!(
+            model.constraints().first().map(|c| c.name()),
+            Some(String::from("Vehicle Capacity Constraint"))
+        );
+        assert_eq!(
+            model.constraints().get(1).map(|c| c.name()),
+            Some(String::from("Vehicle Compatibility Constraint"))
+        );
+        assert_eq!(
+            model.constraints().get(2).map(|c| c.name()),
+            Some(String::from("Test Constraint"))
+        );
+        assert_eq!(
+            model.expressions().first().map(|e| e.name()),
+            Some(String::from("Distance Expression (Meters)"))
         );
     }
 }
