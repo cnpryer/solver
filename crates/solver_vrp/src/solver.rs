@@ -200,14 +200,14 @@ impl Operator for RepairOperator {
 
 pub enum DestroyOperator {
     Random(OperatorParameters),
-    Worst(OperatorParameters),
+    Nearest(OperatorParameters),
 }
 
 impl Operator for DestroyOperator {
     fn name(&self) -> String {
         match self {
             Self::Random(_) => "Random Destroy Operator".to_string(),
-            Self::Worst(_) => "Worst Destroy Operator".to_string(),
+            Self::Nearest(_) => "Nearest Destroy Operator".to_string(),
         }
     }
 
@@ -268,19 +268,19 @@ impl Random {
         }
     }
 
-    fn gen_u32(&mut self) -> u32 {
+    fn u32(&mut self) -> u32 {
         self.rng.random()
     }
 
-    fn gen_f64(&mut self) -> f64 {
+    fn f64(&mut self) -> f64 {
         self.rng.random()
     }
 
-    fn gen_range_u32(&mut self, low: u32, high: u32) -> u32 {
+    fn range_u32(&mut self, low: u32, high: u32) -> u32 {
         self.rng.random_range(low..high)
     }
 
-    fn gen_range_f64(&mut self, low: f64, high: f64) -> f64 {
+    fn range_f64(&mut self, low: f64, high: f64) -> f64 {
         self.rng.random_range(low..high)
     }
 }
@@ -289,7 +289,10 @@ impl Random {
 mod tests {
     use crate::{
         ModelBuilder,
-        model::{DistanceExpression, UnplannedObjective, VehicleConstraint},
+        model::{
+            DistanceExpression, UnplannedObjective, VehicleCapacityConstraint,
+            VehicleCompatibilityConstraint,
+        },
     };
 
     use super::*;
@@ -300,8 +303,8 @@ mod tests {
 
         let model = ModelBuilder::new()
             .objective(UnplannedObjective)
-            .constraint(VehicleConstraint::Capacity)
-            .constraint(VehicleConstraint::Compatibility)
+            .constraint(VehicleCapacityConstraint::MaxVolume)
+            .constraint(VehicleCompatibilityConstraint::Match)
             .expression(DistanceExpression::Meters)
             .build();
 
@@ -309,7 +312,7 @@ mod tests {
             .operator(RepairOperator::Random(OperatorParameters::new(1.0, 0.5)))
             .operator(RepairOperator::Nearest(OperatorParameters::new(1.0, 0.5)))
             .operator(DestroyOperator::Random(OperatorParameters::new(2.0, 0.3)))
-            .operator(DestroyOperator::Worst(OperatorParameters::new(2.0, 0.3)))
+            .operator(DestroyOperator::Nearest(OperatorParameters::new(2.0, 0.3)))
             .operator(ResetOperator::Partial(OperatorParameters::new(3.0, 0.2)))
             .operator(ResetOperator::Full(OperatorParameters::new(3.0, 0.2)))
             .options(options)
@@ -330,10 +333,10 @@ mod tests {
         let mut rng2 = Random::seed(42);
 
         for _ in 0..100 {
-            assert_eq!(rng1.gen_u32(), rng2.gen_u32());
-            assert_eq!(rng1.gen_f64(), rng2.gen_f64());
-            assert_eq!(rng1.gen_range_u32(0, 100), rng2.gen_range_u32(0, 100));
-            assert_eq!(rng1.gen_range_f64(0.0, 1.0), rng2.gen_range_f64(0.0, 1.0));
+            assert_eq!(rng1.u32(), rng2.u32());
+            assert_eq!(rng1.f64(), rng2.f64());
+            assert_eq!(rng1.range_u32(0, 100), rng2.range_u32(0, 100));
+            assert_eq!(rng1.range_f64(0.0, 1.0), rng2.range_f64(0.0, 1.0));
         }
     }
 }

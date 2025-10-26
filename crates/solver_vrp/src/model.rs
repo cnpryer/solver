@@ -263,21 +263,48 @@ impl Objective for UnplannedObjective {
     }
 }
 
-pub enum VehicleConstraint {
-    Capacity,
-    Compatibility,
+pub enum VehicleCapacityConstraint {
+    MaxWeight,
+    MaxVolume,
 }
 
-impl Constraint for VehicleConstraint {
+pub enum VehicleCompatibilityConstraint {
+    Match,
+}
+
+impl Constraint for VehicleCapacityConstraint {
     fn name(&self) -> String {
         match self {
-            VehicleConstraint::Capacity => String::from("Vehicle Capacity Constraint"),
-            VehicleConstraint::Compatibility => String::from("Vehicle Compatibility Constraint"),
+            VehicleCapacityConstraint::MaxWeight => {
+                String::from("Vehicle Capacity Constraint (Max Weight)")
+            }
+            VehicleCapacityConstraint::MaxVolume => {
+                String::from("Vehicle Capacity Constraint (Max Volume)")
+            }
         }
     }
 
-    fn is_feasible(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> bool {
-        true
+    fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool {
+        match self {
+            VehicleCapacityConstraint::MaxWeight => true,
+            VehicleCapacityConstraint::MaxVolume => true,
+        }
+    }
+}
+
+impl Constraint for VehicleCompatibilityConstraint {
+    fn name(&self) -> String {
+        match self {
+            VehicleCompatibilityConstraint::Match => {
+                String::from("Vehicle Compatibility Constraint (Match)")
+            }
+        }
+    }
+
+    fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool {
+        match self {
+            VehicleCompatibilityConstraint::Match => true,
+        }
     }
 }
 
@@ -469,8 +496,8 @@ mod tests {
             .distance_matrix(distance_matrix)
             .objective(UnplannedObjective)
             .objective(TestObjective)
-            .constraint(VehicleConstraint::Capacity)
-            .constraint(VehicleConstraint::Compatibility)
+            .constraint(VehicleCapacityConstraint::MaxVolume)
+            .constraint(VehicleCompatibilityConstraint::Match)
             .constraint(TestConstraint)
             .expression(DistanceExpression::Meters)
             .expression(TestExpression)
@@ -494,11 +521,11 @@ mod tests {
         );
         assert_eq!(
             model.constraints().first().map(|c| c.name()),
-            Some(String::from("Vehicle Capacity Constraint"))
+            Some(String::from("Vehicle Capacity Constraint (Max Volume)"))
         );
         assert_eq!(
             model.constraints().get(1).map(|c| c.name()),
-            Some(String::from("Vehicle Compatibility Constraint"))
+            Some(String::from("Vehicle Compatibility Constraint (Match)"))
         );
         assert_eq!(
             model.constraints().get(2).map(|c| c.name()),
