@@ -51,10 +51,7 @@ jobs:
         run: cargo clippy --workspace --all-features -- -D warnings
   format:
     name: Format
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@nightly
