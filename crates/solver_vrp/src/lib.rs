@@ -96,7 +96,7 @@
 //!         .operator(CustomOperator)
 //!         .build();
 //!
-//!     let best_solutions = solver.solve();
+//!     let best_solution = solver.solve();
 //! }
 //! ```
 //!

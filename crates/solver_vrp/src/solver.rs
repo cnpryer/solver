@@ -12,7 +12,7 @@ pub struct Solver {
     model: Model,
     operators: Operators,
     options: SolverOptions,
-    best_solution: Option<Solution>,
+    solution: Option<Solution>,
     iteration_count: usize,
 }
 
@@ -55,7 +55,7 @@ impl Solver {
             self.execute_operators();
             self.increment_iteration();
         }
-        self.best_solution
+        self.solution
     }
 
     fn increment_iteration(&mut self) {
@@ -63,13 +63,13 @@ impl Solver {
     }
 
     fn execute_operators(&mut self) {
-        let mut solution = self.best_solution.take().unwrap_or_default();
+        let mut solution = self.solution.take().unwrap_or_default();
         for op in self.operators.iter() {
             if let Some(s) = op.execute(&self.model, &solution) {
                 solution = s.best(solution);
             }
         }
-        self.best_solution = Some(solution);
+        self.solution = Some(solution);
     }
 }
 
@@ -104,7 +104,7 @@ impl SolverBuilder {
                 model,
                 operators: self.operators,
                 options: self.options,
-                best_solution: None,
+                solution: None,
                 iteration_count: 0,
             },
         }
@@ -134,7 +134,7 @@ impl SolverBuilderWithModel {
     }
 
     pub fn plan(mut self, solution: Solution) -> Self {
-        self.solver.best_solution = Some(solution);
+        self.solver.solution = Some(solution);
         self
     }
 }
@@ -258,7 +258,7 @@ mod tests {
         assert_eq!(solver.options.max_iterations, 10);
         assert_eq!(solver.operators.len(), 6);
         assert_eq!(solver.iteration_count, 0);
-        assert!(solver.best_solution.is_none());
+        assert!(solver.solution.is_none());
         assert_eq!(solver.model.objectives().len(), 1);
         assert_eq!(solver.model.constraints().len(), 2);
     }
