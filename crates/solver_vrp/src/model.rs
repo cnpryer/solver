@@ -538,14 +538,14 @@ mod tests {
     }
 
     #[test]
-    fn test_dag() {
-        let mut dag = DirectedAcyclicGraph::with_capacity(3);
-        dag.add_arc(0, 1);
-        dag.add_arc(1, 2);
-        assert_eq!(dag.edges().len(), 3);
-        assert_eq!(dag.edges()[0], vec![1]);
-        assert_eq!(dag.edges()[1], vec![2]);
-        assert_eq!(dag.edges()[2], vec![]);
-        assert_eq!(dag.arcs().len(), 2);
+    fn test_graph() {
+        let mut graph = DirectedAcyclicGraph::with_capacity(3);
+        graph.add_arc(0, 1);
+        graph.add_arc(1, 2);
+        assert_eq!(graph.edges().len(), 3);
+        assert_eq!(graph.edges()[0], vec![1]);
+        assert_eq!(graph.edges()[1], vec![2]);
+        assert_eq!(graph.edges()[2], vec![]);
+        assert_eq!(graph.arcs().len(), 2);
     }
 }

@@ -1,15 +1,11 @@
+use core::panic;
+
 use crate::model::Model;
+use crate::operator::{Operator, Operators};
+use crate::random::Random;
 use crate::solution::Solution;
-use rand::prelude::{Rng, SeedableRng, StdRng};
-use std::time::{SystemTime, UNIX_EPOCH};
 
-pub trait Operator {
-    /// Name of the operator.
-    fn name(&self) -> String;
-    /// Executes the operator to generate a new solution.
-    fn execute(&self, model: &Model, solution: &Solution) -> Option<Solution>;
-}
-
+#[derive(Default)]
 pub struct Solver {
     model: Model,
     operators: Operators,
@@ -42,7 +38,7 @@ impl Solver {
 
     #[must_use]
     pub fn solve(mut self) -> Option<Solution> {
-        while self.options.max_iterations > self.iteration_count {
+        while self.iteration_count < self.options.max_iterations {
             self.execute_operators();
             self.increment_iteration();
         }
@@ -56,47 +52,20 @@ impl Solver {
     fn execute_operators(&mut self) {
         let mut solution = self.solution.take().unwrap_or_default();
         for op in self.operators.iter() {
-            if let Some(s) = op.execute(&self.model, &solution) {
-                solution = s.best(solution);
+            if !self.random.chance((op.chance(), 1.0)) {
+                continue;
             }
+            solution = solution
+                .plan(&op.execute(&self.model, &solution, &mut self.random))
+                .best(solution);
         }
         self.solution = Some(solution);
     }
 }
 
 #[derive(Default)]
-pub struct Operators(Vec<Box<dyn Operator>>);
-
-impl Operators {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn first(&self) -> Option<&dyn Operator> {
-        self.0.first().map(AsRef::as_ref)
-    }
-
-    pub fn get(&self, index: usize) -> Option<&dyn Operator> {
-        self.0.get(index).map(AsRef::as_ref)
-    }
-
-    pub fn push(&mut self, operator: Box<dyn Operator>) {
-        self.0.push(operator);
-    }
-
-    pub fn iter(&self) -> std::slice::Iter<'_, Box<dyn Operator>> {
-        self.0.iter()
-    }
-}
-
-#[derive(Default)]
 pub struct SolverBuilder {
-    operators: Operators,
-    options: SolverOptions,
+    solver: Solver,
 }
 
 impl SolverBuilder {
@@ -105,38 +74,6 @@ impl SolverBuilder {
         Self::default()
     }
 
-    #[must_use]
-    pub fn operator<Op: Operator + 'static>(mut self, operator: Op) -> Self {
-        self.operators.push(Box::new(operator));
-        self
-    }
-
-    #[must_use]
-    pub fn options(mut self, options: SolverOptions) -> Self {
-        self.options = options;
-        self
-    }
-
-    #[must_use]
-    pub fn model(self, model: Model) -> SolverBuilderWithModel {
-        SolverBuilderWithModel {
-            solver: Solver {
-                model,
-                operators: self.operators,
-                options: self.options,
-                solution: None,
-                random: Random::new(),
-                iteration_count: 0,
-            },
-        }
-    }
-}
-
-pub struct SolverBuilderWithModel {
-    solver: Solver,
-}
-
-impl SolverBuilderWithModel {
     #[must_use]
     pub fn operator<Op: Operator + 'static>(mut self, operator: Op) -> Self {
         self.solver.operators.push(Box::new(operator));
@@ -150,13 +87,20 @@ impl SolverBuilderWithModel {
     }
 
     #[must_use]
-    pub fn build(self) -> Solver {
-        self.solver
+    pub fn model(mut self, model: Model) -> SolverBuilder {
+        self.solver.model = model;
+        self
     }
 
+    #[must_use]
     pub fn plan(mut self, solution: Solution) -> Self {
         self.solver.solution = Some(solution);
         self
+    }
+
+    #[must_use]
+    pub fn build(self) -> Solver {
+        self.solver
     }
 }
 
@@ -179,117 +123,14 @@ impl Default for SolverOptions {
     }
 }
 
-pub enum RepairOperator {
-    Random(OperatorParameters),
-    Nearest(OperatorParameters),
-}
-
-impl Operator for RepairOperator {
-    fn name(&self) -> String {
-        match self {
-            Self::Random(_) => String::from("Random Repair Operator"),
-            Self::Nearest(_) => String::from("Nearest Repair Operator"),
-        }
-    }
-
-    fn execute(&self, _model: &Model, _solution: &Solution) -> Option<Solution> {
-        None
-    }
-}
-
-pub enum DestroyOperator {
-    Random(OperatorParameters),
-    Nearest(OperatorParameters),
-}
-
-impl Operator for DestroyOperator {
-    fn name(&self) -> String {
-        match self {
-            Self::Random(_) => String::from("Random Destroy Operator"),
-            Self::Nearest(_) => String::from("Nearest Destroy Operator"),
-        }
-    }
-
-    fn execute(&self, _model: &Model, _solution: &Solution) -> Option<Solution> {
-        None
-    }
-}
-
-pub enum ResetOperator {
-    Full(OperatorParameters),
-    Partial(OperatorParameters),
-}
-
-impl Operator for ResetOperator {
-    fn name(&self) -> String {
-        match self {
-            Self::Full(_) => String::from("Full Reset Operator"),
-            Self::Partial(_) => String::from("Partial Reset Operator"),
-        }
-    }
-
-    fn execute(&self, _model: &Model, _solution: &Solution) -> Option<Solution> {
-        None
-    }
-}
-
-pub struct OperatorParameters {
-    value: f64,
-    chance: f64,
-}
-
-impl OperatorParameters {
-    #[must_use]
-    pub fn new(value: f64, chance: f64) -> Self {
-        Self { value, chance }
-    }
-}
-
-struct Random {
-    rng: StdRng,
-}
-
-impl Random {
-    fn new() -> Self {
-        Self::seed(
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs(),
-        )
-    }
-
-    fn seed(seed: u64) -> Self {
-        Self {
-            rng: StdRng::seed_from_u64(seed),
-        }
-    }
-
-    fn u32(&mut self) -> u32 {
-        self.rng.random()
-    }
-
-    fn f64(&mut self) -> f64 {
-        self.rng.random()
-    }
-
-    fn range_u32(&mut self, low: u32, high: u32) -> u32 {
-        self.rng.random_range(low..high)
-    }
-
-    fn range_f64(&mut self, low: f64, high: f64) -> f64 {
-        self.rng.random_range(low..high)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::{
-        ModelBuilder,
         model::{
-            DistanceExpression, UnplannedObjective, VehicleCapacityConstraint,
+            DistanceExpression, ModelBuilder, UnplannedObjective, VehicleCapacityConstraint,
             VehicleCompatibilityConstraint,
         },
+        operator::{DestroyOperator, OperatorParameters, RepairOperator, ResetOperator},
     };
 
     use super::*;

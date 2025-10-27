@@ -29,6 +29,11 @@ impl Solution {
     }
 
     #[must_use]
+    pub fn plan(&self, _plan: &Plan) -> Solution {
+        todo!()
+    }
+
+    #[must_use]
     pub fn best(self, other: Solution) -> Solution {
         if self.value < other.value {
             self
