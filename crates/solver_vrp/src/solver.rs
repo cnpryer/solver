@@ -1,9 +1,8 @@
 use crate::model::Model;
-use crate::operator::{Operator, Operators};
+use crate::operator::{DestroyOperator, Operator, OperatorParameters, Operators, RepairOperator};
 use crate::random::Random;
 use crate::solution::Solution;
 
-#[derive(Default)]
 pub struct Solver {
     model: Model,
     operators: Operators,
@@ -14,6 +13,18 @@ pub struct Solver {
 }
 
 impl Solver {
+    #[must_use]
+    pub fn new() -> Self {
+        Self {
+            model: Model::new(),
+            operators: Operators::new(),
+            options: SolverOptions::default(),
+            solution: None,
+            random: Random::new(),
+            iteration_count: 0,
+        }
+    }
+
     #[must_use]
     pub fn model(&self) -> &Model {
         &self.model
@@ -61,6 +72,17 @@ impl Solver {
     }
 }
 
+impl Default for Solver {
+    fn default() -> Self {
+        SolverBuilder::new()
+            .model(Model::default())
+            .operator(DestroyOperator::default())
+            .operator(RepairOperator::default())
+            .options(SolverOptions::default())
+            .build()
+    }
+}
+
 #[derive(Default)]
 pub struct SolverBuilder {
     solver: Solver,
@@ -69,7 +91,9 @@ pub struct SolverBuilder {
 impl SolverBuilder {
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            solver: Solver::new(),
+        }
     }
 
     #[must_use]
@@ -123,40 +147,15 @@ impl Default for SolverOptions {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        model::{
-            DistanceExpression, ModelBuilder, UnplannedObjective, VehicleCapacityConstraint,
-            VehicleCompatibilityConstraint,
-        },
-        operator::{DestroyOperator, OperatorParameters, RepairOperator, ResetOperator},
-    };
-
     use super::*;
 
     #[test]
     fn test_solver() {
         let options = SolverOptions::new(10);
-
-        let model = ModelBuilder::new()
-            .objective(UnplannedObjective)
-            .constraint(VehicleCapacityConstraint::MaxVolume)
-            .constraint(VehicleCompatibilityConstraint::Match)
-            .expression(DistanceExpression::Meters)
-            .build();
-
-        let solver = SolverBuilder::new()
-            .operator(RepairOperator::Random(OperatorParameters::new(1.0, 0.5)))
-            .operator(RepairOperator::Nearest(OperatorParameters::new(1.0, 0.5)))
-            .operator(DestroyOperator::Random(OperatorParameters::new(2.0, 0.3)))
-            .operator(DestroyOperator::Nearest(OperatorParameters::new(2.0, 0.3)))
-            .operator(ResetOperator::Partial(OperatorParameters::new(3.0, 0.2)))
-            .operator(ResetOperator::Full(OperatorParameters::new(3.0, 0.2)))
-            .options(options)
-            .model(model)
-            .build();
+        let solver = SolverBuilder::default().options(options).build();
 
         assert_eq!(solver.options.max_iterations, 10);
-        assert_eq!(solver.operators().len(), 6);
+        assert_eq!(solver.operators().len(), 2);
         assert_eq!(solver.iteration_count, 0);
         assert!(solver.solution.is_none());
         assert_eq!(solver.model.objectives().len(), 1);

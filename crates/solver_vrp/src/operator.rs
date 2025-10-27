@@ -42,84 +42,55 @@ impl Operators {
     }
 }
 
-pub enum RepairOperator {
-    Random(OperatorParameters),
-    Nearest(OperatorParameters),
+pub struct RepairOperator {
+    pub parameters: OperatorParameters,
+}
+
+impl Default for RepairOperator {
+    fn default() -> Self {
+        Self {
+            parameters: OperatorParameters::new(1.0, 1.0),
+        }
+    }
 }
 
 impl Operator for RepairOperator {
     fn name(&self) -> String {
-        match self {
-            Self::Random(_) => String::from("Repair Operator (Random)"),
-            Self::Nearest(_) => String::from("Repair Operator (Nearest)"),
-        }
+        String::from("repair")
     }
 
     fn execute(&self, model: &Model, solution: &Solution, random: &mut Random) -> Plan {
-        match self {
-            Self::Random(p) => repair_random(model, solution, p, random),
-            Self::Nearest(p) => repair_nearest(model, solution, p, random),
-        }
+        repair_nearest(model, solution, &self.parameters, random)
     }
 
     fn chance(&self) -> f64 {
-        match self {
-            RepairOperator::Random(p) | RepairOperator::Nearest(p) => p.chance_f64,
-        }
+        self.parameters.chance_f64
     }
 }
 
-pub enum DestroyOperator {
-    Random(OperatorParameters),
-    Nearest(OperatorParameters),
+pub struct DestroyOperator {
+    pub parameters: OperatorParameters,
+}
+
+impl Default for DestroyOperator {
+    fn default() -> Self {
+        Self {
+            parameters: OperatorParameters::new(1.0, 1.0),
+        }
+    }
 }
 
 impl Operator for DestroyOperator {
     fn name(&self) -> String {
-        match self {
-            Self::Random(_) => String::from("Destroy Operator (Random)"),
-            Self::Nearest(_) => String::from("Destroy Operator (Nearest)"),
-        }
+        String::from("destroy")
     }
 
     fn execute(&self, model: &Model, solution: &Solution, random: &mut Random) -> Plan {
-        match self {
-            Self::Random(p) => destroy_random(model, solution, p, random),
-            Self::Nearest(p) => destroy_nearest(model, solution, p, random),
-        }
+        destroy_random(model, solution, &self.parameters, random)
     }
 
     fn chance(&self) -> f64 {
-        match self {
-            DestroyOperator::Random(p) | DestroyOperator::Nearest(p) => p.chance_f64,
-        }
-    }
-}
-
-pub enum ResetOperator {
-    Full(OperatorParameters),
-    Partial(OperatorParameters),
-}
-
-impl Operator for ResetOperator {
-    fn name(&self) -> String {
-        match self {
-            Self::Full(_) => String::from("Reset Operator (Full)"),
-            Self::Partial(_) => String::from("Reset Operator (Partial)"),
-        }
-    }
-
-    fn execute(&self, model: &Model, solution: &Solution, random: &mut Random) -> Plan {
-        match self {
-            Self::Full(p) => reset_full(model, solution, p, random),
-            Self::Partial(p) => reset_partial(model, solution, p, random),
-        }
-    }
-
-    fn chance(&self) -> f64 {
-        match self {
-            ResetOperator::Full(p) | ResetOperator::Partial(p) => p.chance_f64,
-        }
+        self.parameters.chance_f64
     }
 }
 
@@ -159,27 +130,9 @@ fn destroy_nearest(
     todo!()
 }
 
-fn reset_full(
-    _model: &Model,
-    _solution: &Solution,
-    _params: &OperatorParameters,
-    _random: &mut Random,
-) -> Plan {
-    todo!()
-}
-
-fn reset_partial(
-    _model: &Model,
-    _solution: &Solution,
-    _params: &OperatorParameters,
-    _random: &mut Random,
-) -> Plan {
-    todo!()
-}
-
 pub struct OperatorParameters {
-    value: f64,
-    chance_f64: f64,
+    pub value: f64,
+    pub chance_f64: f64,
 }
 
 impl OperatorParameters {

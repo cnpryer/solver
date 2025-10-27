@@ -25,7 +25,6 @@ pub trait Expression {
     fn compute(&self, model: &Model, solution: &Solution, plan: &Plan) -> f64;
 }
 
-#[derive(Default)]
 pub struct Model {
     data: ModelData,
     objectives: Objectives,
@@ -36,7 +35,7 @@ pub struct Model {
 impl Model {
     #[must_use]
     pub fn new() -> Self {
-        Self::default()
+        ModelBuilder::new().build()
     }
 
     #[must_use]
@@ -72,6 +71,16 @@ impl Model {
     #[must_use]
     pub fn expressions(&self) -> &Expressions {
         &self.expressions
+    }
+}
+
+impl Default for Model {
+    fn default() -> Self {
+        ModelBuilder::new()
+            .objective(UnplannedObjective {})
+            .constraint(VehicleCapacityConstraint {})
+            .constraint(VehicleCompatibilityConstraint {})
+            .build()
     }
 }
 
@@ -255,7 +264,7 @@ pub struct UnplannedObjective;
 
 impl Objective for UnplannedObjective {
     fn name(&self) -> String {
-        String::from("Unplanned Objective")
+        String::from("unplanned")
     }
 
     fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
@@ -263,66 +272,27 @@ impl Objective for UnplannedObjective {
     }
 }
 
-pub enum VehicleCapacityConstraint {
-    MaxWeight,
-    MaxVolume,
-}
+pub struct VehicleCapacityConstraint {}
 
-pub enum VehicleCompatibilityConstraint {
-    Match,
-}
+pub struct VehicleCompatibilityConstraint {}
 
 impl Constraint for VehicleCapacityConstraint {
     fn name(&self) -> String {
-        match self {
-            VehicleCapacityConstraint::MaxWeight => {
-                String::from("Vehicle Capacity Constraint (Max Weight)")
-            }
-            VehicleCapacityConstraint::MaxVolume => {
-                String::from("Vehicle Capacity Constraint (Max Volume)")
-            }
-        }
+        String::from("vehicle_capacity")
     }
 
     fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool {
-        match self {
-            VehicleCapacityConstraint::MaxWeight => true,
-            VehicleCapacityConstraint::MaxVolume => true,
-        }
+        true
     }
 }
 
 impl Constraint for VehicleCompatibilityConstraint {
     fn name(&self) -> String {
-        match self {
-            VehicleCompatibilityConstraint::Match => {
-                String::from("Vehicle Compatibility Constraint (Match)")
-            }
-        }
+        String::from("vehicle_compatibility")
     }
 
     fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool {
-        match self {
-            VehicleCompatibilityConstraint::Match => true,
-        }
-    }
-}
-
-pub enum DistanceExpression {
-    Meters,
-}
-
-impl Expression for DistanceExpression {
-    fn name(&self) -> String {
-        match self {
-            DistanceExpression::Meters => String::from("Distance Expression (Meters)"),
-        }
-    }
-
-    fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
-        match self {
-            DistanceExpression::Meters => 0.0,
-        }
+        true
     }
 }
 
@@ -485,7 +455,7 @@ mod tests {
     }
 
     #[test]
-    fn test_model() {
+    fn test_model_build_and_access() {
         let stop = Stop::new(1, Location::new(1, 10.0, 20.0), vec![5.0]);
         let vehicle = Vehicle::new(1, vec![10.0]);
         let distance_matrix = DistanceMatrix::new(vec![vec![0.0, 1.0], vec![1.0, 0.0]]);
@@ -494,46 +464,87 @@ mod tests {
             .stop(stop)
             .vehicle(vehicle)
             .distance_matrix(distance_matrix)
-            .objective(UnplannedObjective)
-            .objective(TestObjective)
-            .constraint(VehicleCapacityConstraint::MaxVolume)
-            .constraint(VehicleCompatibilityConstraint::Match)
-            .constraint(TestConstraint)
-            .expression(DistanceExpression::Meters)
-            .expression(TestExpression)
+            .objective(UnplannedObjective {})
+            .objective(TestObjective {})
+            .constraint(VehicleCapacityConstraint {})
+            .constraint(VehicleCompatibilityConstraint {})
+            .constraint(TestConstraint {})
+            .expression(TestExpression {})
             .build();
 
         assert_eq!(model.stops().len(), 1);
         assert_eq!(model.vehicles().len(), 1);
         assert!(model.distance_matrix().is_some());
+    }
 
+    #[test]
+    fn test_model_objective_count() {
+        let model = ModelBuilder::new()
+            .objective(UnplannedObjective)
+            .objective(TestObjective)
+            .build();
         assert_eq!(model.objectives().len(), 2);
-        assert_eq!(model.constraints().len(), 3);
-        assert_eq!(model.expressions().len(), 2);
+    }
 
+    #[test]
+    fn test_model_constraint_count() {
+        let model = ModelBuilder::new()
+            .constraint(VehicleCapacityConstraint {})
+            .constraint(VehicleCompatibilityConstraint {})
+            .constraint(TestConstraint {})
+            .build();
+        assert_eq!(model.constraints().len(), 3);
+    }
+
+    #[test]
+    fn test_model_expression_count() {
+        let model = ModelBuilder::new().expression(TestExpression).build();
+        assert_eq!(model.expressions().len(), 1);
+    }
+
+    #[test]
+    fn test_model_objective_names() {
+        let model = ModelBuilder::new()
+            .objective(UnplannedObjective)
+            .objective(TestObjective)
+            .build();
         assert_eq!(
             model.objectives().first().map(|o| o.name()),
-            Some(String::from("Unplanned Objective"))
+            Some(String::from("unplanned"))
         );
         assert_eq!(
             model.objectives().get(1).map(|o| o.name()),
             Some(String::from("Test Objective"))
         );
+    }
+
+    #[test]
+    fn test_model_constraint_names() {
+        let model = ModelBuilder::new()
+            .constraint(VehicleCapacityConstraint {})
+            .constraint(VehicleCompatibilityConstraint {})
+            .constraint(TestConstraint {})
+            .build();
         assert_eq!(
             model.constraints().first().map(|c| c.name()),
-            Some(String::from("Vehicle Capacity Constraint (Max Volume)"))
+            Some(String::from("vehicle_capacity"))
         );
         assert_eq!(
             model.constraints().get(1).map(|c| c.name()),
-            Some(String::from("Vehicle Compatibility Constraint (Match)"))
+            Some(String::from("vehicle_compatibility"))
         );
         assert_eq!(
             model.constraints().get(2).map(|c| c.name()),
             Some(String::from("Test Constraint"))
         );
+    }
+
+    #[test]
+    fn test_model_expression_names() {
+        let model = ModelBuilder::new().expression(TestExpression).build();
         assert_eq!(
             model.expressions().first().map(|e| e.name()),
-            Some(String::from("Distance Expression (Meters)"))
+            Some(String::from("Test Expression"))
         );
     }
 
