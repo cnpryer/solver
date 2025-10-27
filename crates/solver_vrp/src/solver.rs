@@ -1,5 +1,3 @@
-use core::panic;
-
 use crate::model::Model;
 use crate::operator::{Operator, Operators};
 use crate::random::Random;
