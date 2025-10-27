@@ -4,7 +4,7 @@
 //!
 //! ! WARNING: Some APIs like the Plan API are still unimplemented and subject to change.
 //!
-//! This library provides functionalities to solve various vehicle routing problems (VRP), including:
+//! Supported:
 //!
 //! - Pickup and Delivery Problem (PDP)
 //!
@@ -44,7 +44,7 @@
 //!         let i = 1;
 //!         self.0.get(i)
 //!             .zip(plan.route().changes().last())
-//!             .and_then(|(max, change)| change.required_capacity().get(i).map(|d| d <= max))
+//!             .and_then(|(max, change)| change.requirements().capacity().get(i).map(|r| r <= max))
 //!             .unwrap_or(true)
 //!     }
 //! }
