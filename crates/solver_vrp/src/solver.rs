@@ -1,5 +1,5 @@
 use crate::model::Model;
-use crate::operator::{DestroyOperator, Operator, OperatorParameters, Operators, RepairOperator};
+use crate::operator::{DestroyOperator, Operator, Operators, RepairOperator};
 use crate::random::Random;
 use crate::solution::Solution;
 
