@@ -10,6 +10,7 @@ pub trait Operator {
     fn execute(&self, model: &Model, solution: &Solution) -> Option<Solution>;
 }
 
+#[derive(Default)]
 pub struct Solver {
     model: Model,
     operators: Operators,
@@ -95,8 +96,7 @@ impl Operators {
 
 #[derive(Default)]
 pub struct SolverBuilder {
-    operators: Operators,
-    options: SolverOptions,
+    solver: Solver,
 }
 
 impl SolverBuilder {
@@ -105,38 +105,6 @@ impl SolverBuilder {
         Self::default()
     }
 
-    #[must_use]
-    pub fn operator<Op: Operator + 'static>(mut self, operator: Op) -> Self {
-        self.operators.push(Box::new(operator));
-        self
-    }
-
-    #[must_use]
-    pub fn options(mut self, options: SolverOptions) -> Self {
-        self.options = options;
-        self
-    }
-
-    #[must_use]
-    pub fn model(self, model: Model) -> SolverBuilderWithModel {
-        SolverBuilderWithModel {
-            solver: Solver {
-                model,
-                operators: self.operators,
-                options: self.options,
-                solution: None,
-                random: Random::new(),
-                iteration_count: 0,
-            },
-        }
-    }
-}
-
-pub struct SolverBuilderWithModel {
-    solver: Solver,
-}
-
-impl SolverBuilderWithModel {
     #[must_use]
     pub fn operator<Op: Operator + 'static>(mut self, operator: Op) -> Self {
         self.solver.operators.push(Box::new(operator));
@@ -150,13 +118,18 @@ impl SolverBuilderWithModel {
     }
 
     #[must_use]
-    pub fn build(self) -> Solver {
-        self.solver
+    pub fn model(mut self, model: Model) -> SolverBuilder {
+        self.solver.model = model;
+        self
     }
 
     pub fn plan(mut self, solution: Solution) -> Self {
         self.solver.solution = Some(solution);
         self
+    }
+
+    pub fn build(self) -> Solver {
+        self.solver
     }
 }
 
@@ -247,6 +220,12 @@ impl OperatorParameters {
 
 struct Random {
     rng: StdRng,
+}
+
+impl Default for Random {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Random {
