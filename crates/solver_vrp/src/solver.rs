@@ -42,7 +42,7 @@ impl Solver {
 
     #[must_use]
     pub fn solve(mut self) -> Option<Solution> {
-        while self.options.max_iterations > self.iteration_count {
+        while self.iteration_count < self.options.max_iterations {
             self.execute_operators();
             self.increment_iteration();
         }
