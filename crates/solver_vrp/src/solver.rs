@@ -91,7 +91,7 @@ impl SolverBuilder {
     }
 
     #[must_use]
-    pub fn plan(mut self, solution: Solution) -> Self {
+    pub fn solution(mut self, solution: Solution) -> Self {
         self.solver.solution = Some(solution);
         self
     }

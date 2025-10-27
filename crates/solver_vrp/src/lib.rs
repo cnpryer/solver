@@ -2,7 +2,9 @@
 //!
 //! A vehicle routing solver library.
 //!
-//! This library provides functionalities to solve various vehicle routing problems (VRP), including
+//! ! WARNING: Some APIs like the Plan API are still unimplemented and subject to change.
+//!
+//! This library provides functionalities to solve various vehicle routing problems (VRP), including:
 //!
 //! - Pickup and Delivery Problem (PDP)
 //!
@@ -14,58 +16,58 @@
 //! use solver_vrp::random::Random;
 //!
 //! // Implement a custom objective to add optimized features like linehaul costs to the model.
+//! struct ZeroObjective {
+//!     zero: f64,
+//! }
+//!
 //! impl Objective for ZeroObjective {
 //!     fn name(&self) -> String {
-//!         String::from("Zero Objective")
+//!         String::from("My Zero Objective")
 //!     }
 //!
-//!     // Returns the computed value of the objective for the given plan.
+//!     // Computes the value of the objective for the given plan.
 //!     fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
-//!         0.0
+//!         self.zero
 //!     }
 //! }
 //!
 //! // Implement a custom constraint to enforce unique business rules in the model.
-//! struct MaxVehicleWeight((f64, f64));
+//! struct MyVehicleCapacities(vec![f64; 2]);
 //!
-//! impl Constraint for MaxVehicleWeight {
+//! impl Constraint for MyVehicleCapacities {
 //!     fn name(&self) -> String {
-//!         String::from("Max Vehicle Weight")
+//!         String::from("My Vehicle Capacities")
 //!     }
 //!
 //!     // Returns true if the plan is feasible.
 //!     fn is_feasible(&self, plan: &Plan) -> bool {
-//!         plan.route()
-//!             .changes()
-//!             .last()
-//!             .map_or(true, |change| {
-//!                 change.capacity.utilization(1) <= self.0.1
-//!             });
+//!         let i = 1;
+//!         self.0.get(i)
+//!             .zip(plan.route().changes().last())
+//!             .and_then(|(max, change)| change.required_capacity().get(i).map(|d| d <= max))
+//!             .unwrap_or(true)
 //!     }
 //! }
 //!
 //! // Add new operators to refine the solver's search and heuristic capabilities.
-//! #![derive(Default)]
-//! struct RejectEverything {
-//!     parameters: OperatorParameters,
-//! };
+//! struct SimpleOperator {};
 //!
-//! impl Operator for CustomOperator {
+//! impl Operator for SimpleOperator {
 //!     fn name(&self) -> String {
-//!        String::from("Custom Operator")
+//!         String::from("Simple Operator")
 //!     }
 //!
-//!     // Returns the new solution after executing the operator.
+//!     // Returns the new plan after executing the operator.
 //!     fn execute(&self, _model: &Model, _solution: &Solution, _random: &mut Random) -> Plan {
-//!         Plan::default()
+//!         return Plan::new();
 //!     }
 //! }
 //!
 //! fn run() {
 //!     // Build the model with custom components.
 //!     let model = ModelBuilder::new()
-//!         .objective(CustomObjective::default())
-//!         .constraint(CustomConstraint((26.0, 40_000.0)))
+//!         .objective(ZeroObjective { zero: 0.0 })
+//!         .constraint(MyVehicleCapacities(vec![26.0, 40_000.0]))
 //!         .build();
 //!
 //!     // Define options for the solver.
@@ -77,8 +79,8 @@
 //!     let solver = SolverBuilder::new()
 //!         .options(options)
 //!         .model(model)
-//!         .plan(initial_solution)
-//!         .operator(CustomOperator {})
+//!         .solution(initial_solution)
+//!         .operator(SimpleOperator {})
 //!         .build();
 //!
 //!     let best_solution = solver.solve();

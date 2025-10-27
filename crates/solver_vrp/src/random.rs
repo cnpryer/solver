@@ -45,7 +45,7 @@ impl Random {
     }
 
     pub fn chance(&mut self, (numerator, denominator): (f64, f64)) -> bool {
-        if numerator == denominator {
+        if numerator.eq(&denominator) {
             return true;
         }
         self.f64() < (numerator / denominator)
