@@ -200,7 +200,6 @@ impl ModelBuilder {
 #[derive(Default)]
 pub struct UnplannedObjective;
 
-
 impl Objective for UnplannedObjective {
     fn name(&self) -> String {
         String::from("unplanned")
