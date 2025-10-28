@@ -1,21 +1,15 @@
-use crate::solution::{Plan, Solution};
+use crate::{
+    constraints::{
+        Constraint, Constraints, VehicleCapacityConstraint, VehicleCompatibilityConstraint,
+    },
+    solution::{Plan, Solution},
+};
 
 pub trait Objective {
     /// Name of the objective.
     fn name(&self) -> String;
     /// Computes the value of the objective for the given plan.
     fn compute(&self, model: &Model, solution: &Solution, plan: &Plan) -> f64;
-}
-
-pub trait Constraint {
-    /// Name of the constraint.
-    fn name(&self) -> String;
-    /// Checks if the plan violates the constraint.
-    fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool;
-    /// Indicates if the constraint is temporal.
-    fn is_temporal(&self) -> bool {
-        false
-    }
 }
 
 pub trait Expression {
@@ -29,7 +23,6 @@ pub struct Model {
     data: ModelData,
     objectives: Objectives,
     constraints: Constraints,
-    expressions: Expressions,
 }
 
 impl Model {
@@ -67,19 +60,14 @@ impl Model {
     pub fn constraints(&self) -> &Constraints {
         &self.constraints
     }
-
-    #[must_use]
-    pub fn expressions(&self) -> &Expressions {
-        &self.expressions
-    }
 }
 
 impl Default for Model {
     fn default() -> Self {
         ModelBuilder::new()
-            .objective(UnplannedObjective {})
-            .constraint(VehicleCapacityConstraint {})
-            .constraint(VehicleCompatibilityConstraint {})
+            .objective(UnplannedObjective::default())
+            .constraint(VehicleCapacityConstraint::default())
+            .constraint(VehicleCompatibilityConstraint::default())
             .build()
     }
 }
@@ -147,53 +135,10 @@ impl Objectives {
     }
 }
 
-#[derive(Default)]
-pub struct Constraints(Vec<Box<dyn Constraint>>);
-
-impl Constraints {
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn get(&self, index: usize) -> Option<&dyn Constraint> {
-        self.0.get(index).map(AsRef::as_ref)
-    }
-
-    pub fn first(&self) -> Option<&dyn Constraint> {
-        self.0.first().map(AsRef::as_ref)
-    }
-
-    pub fn push(&mut self, constraint: Box<dyn Constraint>) {
-        self.0.push(constraint);
-    }
-}
-
-#[derive(Default)]
-pub struct Expressions(Vec<Box<dyn Expression>>);
-
-impl Expressions {
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn get(&self, index: usize) -> Option<&dyn Expression> {
-        self.0.get(index).map(AsRef::as_ref)
-    }
-
-    pub fn first(&self) -> Option<&dyn Expression> {
-        self.0.first().map(AsRef::as_ref)
-    }
-
-    pub fn push(&mut self, expression: Box<dyn Expression>) {
-        self.0.push(expression);
-    }
-}
-
 pub struct ModelBuilder {
     data: ModelData,
     objectives: Objectives,
     constraints: Constraints,
-    expressions: Expressions,
 }
 
 impl Default for ModelBuilder {
@@ -209,7 +154,6 @@ impl ModelBuilder {
             data: ModelData::default(),
             objectives: Objectives::default(),
             constraints: Constraints::default(),
-            expressions: Expressions::default(),
         }
     }
 
@@ -237,7 +181,6 @@ impl ModelBuilder {
             data: self.data,
             objectives: self.objectives,
             constraints: self.constraints,
-            expressions: self.expressions,
         }
     }
 
@@ -252,15 +195,15 @@ impl ModelBuilder {
         self.constraints.push(Box::new(constraint));
         self
     }
-
-    #[must_use]
-    pub fn expression<E: Expression + 'static>(mut self, expression: E) -> Self {
-        self.expressions.push(Box::new(expression));
-        self
-    }
 }
 
 pub struct UnplannedObjective;
+
+impl Default for UnplannedObjective {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl Objective for UnplannedObjective {
     fn name(&self) -> String {
@@ -268,36 +211,12 @@ impl Objective for UnplannedObjective {
     }
 
     fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
-        0.0
-    }
-}
-
-pub struct VehicleCapacityConstraint {}
-
-pub struct VehicleCompatibilityConstraint {}
-
-impl Constraint for VehicleCapacityConstraint {
-    fn name(&self) -> String {
-        String::from("vehicle_capacity")
-    }
-
-    fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool {
-        true
-    }
-}
-
-impl Constraint for VehicleCompatibilityConstraint {
-    fn name(&self) -> String {
-        String::from("vehicle_compatibility")
-    }
-
-    fn is_feasible(&self, model: &Model, solution: &Solution, plan: &Plan) -> bool {
-        true
+        todo!()
     }
 }
 
 pub struct Stop {
-    id: usize,
+    pub id: usize,
     location: Location,
     quantities: Vec<f64>,
     compatibility_attributes: Option<Vec<CompatibilityAttribute>>,
@@ -315,7 +234,7 @@ impl Stop {
 }
 
 pub struct Vehicle {
-    id: usize,
+    pub id: usize,
     capacity: Vec<f64>,
     start_location: Option<Location>,
     end_location: Option<Location>,
@@ -438,19 +357,8 @@ mod tests {
             String::from("Test Constraint")
         }
 
-        fn is_feasible(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> bool {
+        fn is_feasible(&self, _plan: &Plan) -> bool {
             true
-        }
-    }
-
-    struct TestExpression;
-    impl Expression for TestExpression {
-        fn name(&self) -> String {
-            String::from("Test Expression")
-        }
-
-        fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
-            0.0
         }
     }
 
@@ -467,9 +375,8 @@ mod tests {
             .objective(UnplannedObjective {})
             .objective(TestObjective {})
             .constraint(VehicleCapacityConstraint {})
-            .constraint(VehicleCompatibilityConstraint {})
+            .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
-            .expression(TestExpression {})
             .build();
 
         assert_eq!(model.stops().len(), 1);
@@ -490,16 +397,10 @@ mod tests {
     fn test_model_constraint_count() {
         let model = ModelBuilder::new()
             .constraint(VehicleCapacityConstraint {})
-            .constraint(VehicleCompatibilityConstraint {})
+            .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
             .build();
         assert_eq!(model.constraints().len(), 3);
-    }
-
-    #[test]
-    fn test_model_expression_count() {
-        let model = ModelBuilder::new().expression(TestExpression).build();
-        assert_eq!(model.expressions().len(), 1);
     }
 
     #[test]
@@ -522,7 +423,7 @@ mod tests {
     fn test_model_constraint_names() {
         let model = ModelBuilder::new()
             .constraint(VehicleCapacityConstraint {})
-            .constraint(VehicleCompatibilityConstraint {})
+            .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
             .build();
         assert_eq!(
@@ -536,15 +437,6 @@ mod tests {
         assert_eq!(
             model.constraints().get(2).map(|c| c.name()),
             Some(String::from("Test Constraint"))
-        );
-    }
-
-    #[test]
-    fn test_model_expression_names() {
-        let model = ModelBuilder::new().expression(TestExpression).build();
-        assert_eq!(
-            model.expressions().first().map(|e| e.name()),
-            Some(String::from("Test Expression"))
         );
     }
 

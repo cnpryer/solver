@@ -32,7 +32,7 @@
 //! }
 //!
 //! // Implement a custom constraint to enforce unique business rules in the model.
-//! struct MyVehicleCapacities(vec![f64; 2]);
+//! struct MyVehicleCapacities([f64; 2]);
 //!
 //! impl Constraint for MyVehicleCapacities {
 //!     fn name(&self) -> String {
@@ -41,11 +41,7 @@
 //!
 //!     // Returns true if the plan is feasible.
 //!     fn is_feasible(&self, plan: &Plan) -> bool {
-//!         let i = 1;
-//!         self.0.get(i)
-//!             .zip(plan.route().changes().last())
-//!             .and_then(|(max, change)| change.requirements().capacity().get(i).map(|r| r <= max))
-//!             .unwrap_or(true)
+//!         todo!()
 //!     }
 //! }
 //!
@@ -67,7 +63,7 @@
 //!     // Build the model with custom components.
 //!     let model = ModelBuilder::new()
 //!         .objective(ZeroObjective { zero: 0.0 })
-//!         .constraint(MyVehicleCapacities(vec![26.0, 40_000.0]))
+//!         .constraint(MyVehicleCapacities([26.0, 40_000.0]))
 //!         .build();
 //!
 //!     // Define options for the solver.
@@ -144,11 +140,8 @@
 //! # `Constraint`
 //!
 //! Constraints define the rules for each solution plan.
-//!
-//! # `Expression`
-//!
-//! Every model implements some number of expressions that are used for internal calculations.
 
+mod constraints;
 mod model;
 mod operator;
 mod random;

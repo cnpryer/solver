@@ -1,3 +1,5 @@
+use crate::model::{Stop, Vehicle};
+
 #[derive(Clone, Debug)]
 pub struct Solution {
     vehicles: SolutionVehicles,
@@ -129,3 +131,20 @@ struct SolutionStatistics {
 }
 
 pub struct Plan {}
+
+impl Plan {
+    #[must_use]
+    pub fn new() -> Self {
+        Plan {}
+    }
+
+    #[must_use]
+    pub fn stop(&self) -> &Stop {
+        todo!()
+    }
+
+    #[must_use]
+    pub fn vehicle(&self) -> &Vehicle {
+        todo!()
+    }
+}
