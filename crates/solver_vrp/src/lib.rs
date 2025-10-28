@@ -9,7 +9,7 @@
 //! - Pickup and Delivery Problem (PDP)
 //!
 //! ```rust,ignore
-//! use solver_vrp::model::{Constraint, Expression, Model, ModelBuilder, Objective};
+//! use solver_vrp::model::{Constraint, Model, ModelBuilder, Objective};
 //! use solver_vrp::operator::Operator;
 //! use solver_vrp::solution::{Plan, Solution};
 //! use solver_vrp::solver::{Solver, SolverBuilder, SolverOptions};
