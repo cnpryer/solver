@@ -32,13 +32,9 @@ impl Constraints {
     }
 }
 
+#[derive(Default)]
 pub struct VehicleCapacityConstraint {}
 
-impl Default for VehicleCapacityConstraint {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl Constraint for VehicleCapacityConstraint {
     fn name(&self) -> String {
@@ -85,6 +81,6 @@ impl StopCompatibilities {
     pub fn is_compatible(&self, stop_index: usize, vehicle_index: usize) -> bool {
         self.0
             .get(stop_index)
-            .map_or(false, |v| v.get(vehicle_index).copied().unwrap_or(true))
+            .is_some_and(|v| v.get(vehicle_index).copied().unwrap_or(true))
     }
 }

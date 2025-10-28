@@ -65,7 +65,7 @@ impl Model {
 impl Default for Model {
     fn default() -> Self {
         ModelBuilder::new()
-            .objective(UnplannedObjective::default())
+            .objective(UnplannedObjective)
             .constraint(VehicleCapacityConstraint::default())
             .constraint(VehicleCompatibilityConstraint::default())
             .build()
@@ -197,13 +197,9 @@ impl ModelBuilder {
     }
 }
 
+#[derive(Default)]
 pub struct UnplannedObjective;
 
-impl Default for UnplannedObjective {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl Objective for UnplannedObjective {
     fn name(&self) -> String {
