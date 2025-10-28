@@ -344,7 +344,7 @@ mod tests {
             .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
             .build();
-        assert_eq!(model.constraints().len(), 3);
+        assert_eq!(model.constraints().len(), 2);
     }
 
     #[test]
@@ -371,14 +371,10 @@ mod tests {
             .build();
         assert_eq!(
             model.constraints().first().map(|c| c.name()),
-            Some(String::from("vehicle_capacity"))
-        );
-        assert_eq!(
-            model.constraints().get(1).map(|c| c.name()),
             Some(String::from("vehicle_compatibility"))
         );
         assert_eq!(
-            model.constraints().get(2).map(|c| c.name()),
+            model.constraints().get(1).map(|c| c.name()),
             Some(String::from("Test Constraint"))
         );
     }

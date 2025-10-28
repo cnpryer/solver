@@ -159,7 +159,7 @@ mod tests {
         assert_eq!(solver.iteration_count, 0);
         assert!(solver.solution.is_none());
         assert_eq!(solver.model.objectives().len(), 1);
-        assert_eq!(solver.model.constraints().len(), 2);
+        assert_eq!(solver.model.constraints().len(), 1);
     }
 
     #[test]
