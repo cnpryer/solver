@@ -1,23 +1,7 @@
 use crate::{
-    constraints::{
-        Constraint, Constraints, VehicleCapacityConstraint, VehicleCompatibilityConstraint,
-    },
-    solution::{Plan, Solution},
+    constraint::{Constraint, Constraints, VehicleCompatibilityConstraint},
+    objective::{Objective, Objectives, UnplannedObjective},
 };
-
-pub trait Objective {
-    /// Name of the objective.
-    fn name(&self) -> String;
-    /// Computes the value of the objective for the given plan.
-    fn compute(&self, model: &Model, solution: &Solution, plan: &Plan) -> f64;
-}
-
-pub trait Expression {
-    /// Name of the expression.
-    fn name(&self) -> String;
-    /// Computes the value of the expression for the given plan.
-    fn compute(&self, model: &Model, solution: &Solution, plan: &Plan) -> f64;
-}
 
 pub struct Model {
     data: ModelData,
@@ -66,7 +50,6 @@ impl Default for Model {
     fn default() -> Self {
         ModelBuilder::new()
             .objective(UnplannedObjective)
-            .constraint(VehicleCapacityConstraint::default())
             .constraint(VehicleCompatibilityConstraint::default())
             .build()
     }
@@ -111,27 +94,6 @@ impl Vehicles {
 
     pub fn push(&mut self, vehicle: Vehicle) {
         self.0.push(vehicle);
-    }
-}
-
-#[derive(Default)]
-pub struct Objectives(Vec<Box<dyn Objective>>);
-
-impl Objectives {
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn get(&self, index: usize) -> Option<&dyn Objective> {
-        self.0.get(index).map(AsRef::as_ref)
-    }
-
-    pub fn first(&self) -> Option<&dyn Objective> {
-        self.0.first().map(AsRef::as_ref)
-    }
-
-    pub fn push(&mut self, objective: Box<dyn Objective>) {
-        self.0.push(objective);
     }
 }
 
@@ -194,19 +156,6 @@ impl ModelBuilder {
     pub fn constraint<C: Constraint + 'static>(mut self, constraint: C) -> Self {
         self.constraints.push(Box::new(constraint));
         self
-    }
-}
-
-#[derive(Default)]
-pub struct UnplannedObjective;
-
-impl Objective for UnplannedObjective {
-    fn name(&self) -> String {
-        String::from("unplanned")
-    }
-
-    fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
-        todo!()
     }
 }
 
@@ -333,6 +282,8 @@ struct Arc {
 
 #[cfg(test)]
 mod tests {
+    use crate::solution::Plan;
+
     use super::*;
 
     struct TestObjective;
@@ -341,7 +292,7 @@ mod tests {
             String::from("Test Objective")
         }
 
-        fn compute(&self, _model: &Model, _solution: &Solution, _plan: &Plan) -> f64 {
+        fn compute(&self, _plan: &Plan) -> f64 {
             0.0
         }
     }
@@ -369,7 +320,6 @@ mod tests {
             .distance_matrix(distance_matrix)
             .objective(UnplannedObjective {})
             .objective(TestObjective {})
-            .constraint(VehicleCapacityConstraint {})
             .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
             .build();
@@ -391,7 +341,6 @@ mod tests {
     #[test]
     fn test_model_constraint_count() {
         let model = ModelBuilder::new()
-            .constraint(VehicleCapacityConstraint {})
             .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
             .build();
@@ -417,7 +366,6 @@ mod tests {
     #[test]
     fn test_model_constraint_names() {
         let model = ModelBuilder::new()
-            .constraint(VehicleCapacityConstraint {})
             .constraint(VehicleCompatibilityConstraint::default())
             .constraint(TestConstraint {})
             .build();

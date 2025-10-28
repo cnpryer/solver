@@ -141,8 +141,9 @@
 //!
 //! Constraints define the rules for each solution plan.
 
-mod constraints;
+mod constraint;
 mod model;
+mod objective;
 mod operator;
 mod random;
 mod solution;

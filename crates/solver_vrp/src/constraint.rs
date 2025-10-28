@@ -32,19 +32,6 @@ impl Constraints {
     }
 }
 
-#[derive(Default)]
-pub struct VehicleCapacityConstraint {}
-
-impl Constraint for VehicleCapacityConstraint {
-    fn name(&self) -> String {
-        String::from("vehicle_capacity")
-    }
-
-    fn is_feasible(&self, plan: &Plan) -> bool {
-        todo!()
-    }
-}
-
 pub struct VehicleCompatibilityConstraint {
     compatible: StopCompatibilities,
 }
